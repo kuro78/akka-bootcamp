@@ -5,35 +5,58 @@ namespace WinTail
 {
     /// <summary>
     /// Actor responsible for reading FROM the console. 
-    /// Also responsible for calling <see cref="ActorSystem.Terminate"/>.
+    /// Also responsible for calling <see cref="ActorSystem.shutdown"/>.
     /// </summary>
     class ConsoleReaderActor : UntypedActor
     {
+        public const string StartCommand = "start";
         public const string ExitCommand = "exit";
-        private IActorRef _consoleWriterActor;
+        private IActorRef _validationActor;
 
-        public ConsoleReaderActor(IActorRef consoleWriterActor)
+        public ConsoleReaderActor(IActorRef validationActor)
         {
-            _consoleWriterActor = consoleWriterActor;
+            _validationActor = validationActor;
         }
 
         protected override void OnReceive(object message)
         {
-            var read = Console.ReadLine();
-            if (!string.IsNullOrEmpty(read) && String.Equals(read, ExitCommand, StringComparison.OrdinalIgnoreCase))
+            if (message.Equals(StartCommand))
             {
-                // shut down the system (acquire handle to system via
-                // this actors context)
+                DoPrintInstructions();
+            }
+            
+            GetAndValidateInput();
+        }
+
+        #region Internal methods
+        private void DoPrintInstructions()
+        {
+            Console.WriteLine("Write whatever you want into the console!");
+            Console.WriteLine("Some entries will pass validation, and some won't...\n\n");
+            Console.WriteLine("Type 'exit' to quit this application at any time.\n");
+        }
+        
+        /// <summary>
+        /// Reads input form console, validate it, then signals appropriate response
+        /// (continue processing, error, success, etc.)
+        /// </summary>
+        private void GetAndValidateInput()
+        {
+            var message = Console.ReadLine();
+
+            if (!string.IsNullOrEmpty(message) &&
+                String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
+            {
+                // if user typed ExitCommand, shut down the entire actor
+                // system (allows the process to exit)
                 Context.System.Terminate();
                 return;
             }
 
-            // send input to the console writer to process and print
-            // YOU NEED TO FILL IN HERE
-
-            // continue reading messages from the console
-            // YOU NEED TO FILL IN HERE
+            //otherwise, just hand message off to validation actor
+            // (by telling its actor ref)
+            _validationActor.Tell(message);
         }
-
+        #endregion
     }
 }
