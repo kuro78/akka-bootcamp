@@ -1,8 +1,7 @@
-# Akka 공부하기 1-3 : Props와 IActorRef
-## Intro
-이번 시간에는 액터를 만들고 메시지를 보내는 여러 방법에 대해 복습 및 보강을 해보도록 합니다. 이번 강의는 코딩이 별로 없고, 더욱 개념적인 내용이지만 앞으로 만날 코드를 이해하기 위한 핵심요소 이자 필수 기반 입니다.
+# Akka 시작하기 1-3 : Props와 IActorRef
+이번 레슨은 액터를 만들고 메시지를 보내는 여러 방법에 대해 복습 및 보강을 해보도록 합니다. 이번 강의는 코딩이 별로 없고, 더욱 개념적인 내용이지만 앞으로 만날 코드를 이해하기 위한 핵심요소 이자 필수 기반 입니다.
 
-또한 이번 강의에서는 코드가 조금 변경되었습니다. `ConsoleReaderActor`에선 더는 유효성 검사를 하지 않습니다. 대신 콘솔에서 받은 메시지를 유효성 검사를 담당할 액터(ValidationActor)에게 전달합니다.
+또한 코드가 조금 변경되었습니다. `ConsoleReaderActor`에선 더는 유효성 검사를 하지 않습니다. 대신 콘솔에서 받은 메시지를 유효성 검사를 담당할 액터(ValidationActor)에게 전달합니다.
 
 ## Key concepts / background
 ### `IActorRef`
@@ -371,4 +370,5 @@ Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
 
 ## 수고하셨습니다! 레슨4 차례입니다.
 수고하셨습니다! 레슨3을 무사히 끝냈습니다. 레슨4를 향해 나아가 봅시다.
-[Akka 공부하기 1- 3 : Child Actors, Actor Hierarchies, and Supervision](../lesson4/README.md)
+
+[Akka 시작하기 1-4 : Child Actors, Actor Hierarchies, and Supervision](../lesson4/README.md)
