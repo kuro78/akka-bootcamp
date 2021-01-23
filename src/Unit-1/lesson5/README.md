@@ -1,61 +1,61 @@
-# Lesson 1.5: Looking up Actors by Address with `ActorSelection`
-In this lesson, we're going to learn how to decouple our actors from each other a bit and a new way of communicating between actors: [`ActorSelection`](http://api.getakka.net/docs/stable/html/CC0731A6.htm "Akka.NET Stable API Docs - ActorSelection class"). This lesson is shorter than the previous ones, now that we've laid down a solid conceptual foundation.
+# Akka 시작하기 - 1.5: `ActorSelection`과 함께 주소로 액터 찾기
+이번 레슨에서는 액터들을 서로 조금씩 분리하는 방법과 액터들 간의 새로운 소통 방법을 배워보겠습니다: [`ActorSelection`](http://api.getakka.net/docs/stable/html/CC0731A6.htm "Akka.NET Stable API Docs - ActorSelection class"). 이번 레슨은 이전의 수업들 보다 짧습니다. 이제 우리는 탄탄한 개념적 토대를 마련했습니다.
 
 ## Key concepts / background
-`ActorSelection` is a natural extension of actor hierarchies, which we covered in the last lesson. Now that we understand that actors live in hierarchies, it begs the question: now that actors aren't all on the same level, does this change the way they communicate?
+`ActorSelection`은 지난 수업에서 다룬 액터 계층 구조와 자연스럽게 연결됩니다. 이제 우리는 액터들이 계층구조 속에서 있다는 것을 이해하게 되면서, 이런 의문을 품게 됩니다: 액터들은 모두 같은 수준에 있지 않습니다. 이것이 이것이 액터들의 의사소통 방식을 변화시킬까요?
 
-We know that we need a handle to an actor in order to send it a message and get it to do work. But now we have actors all over the place in this hierarchy, and don't always have a direct link (`IActorRef`) to the actor(s) we want to send messages to.
+액터에게 메시지를 보내고 일을 시키기 위해 handle이 필요하다는 것을 알고 있습니다. 이제 우리는 모든 계층의 액터들을 가지고 있지만, 메시지를 보내고자 하는 액터에게 항상 직접적인 링크(`IActorRef`)가 있는 것은 아닙니다.
 
-*So how do we send a message to an actor somewhere else in the hierarchy, that we don't have a stored `IActorRef` for? What then?*
+**그럼 계츰 구조의 다른 어딘가에 있을 저장된 `IActorRef`도 없는 액터에게 어떻게 메시지를 보낼 수 있을까요? 어쩌지?**
 
-Enter `ActorSelection`.
+`ActorSelection` 속으로 들어가 봅시다.
 
-### What is `ActorSelection`?
-`ActorSelection` is nothing more than using an `ActorPath` to get a handle to an actor or actors so you can send them a message, without having to store their actual `IActorRef`s.
+### `ActorSelection`이란?
+`ActorSelection`은 `IActorRef`를 저장해 두지 않은 상태에서 액터에 메시지를 보낼 수 있도록 액터의 handle을 찾기 위해 `액터 주소(ActorPath)`를 이용한 것에 불과합니다.
 
-Instead of getting a handle to an actor by creating or passing around its `IActorRef`, you're "looking up" a handle to the actor by its `ActorPath` (recall that the `ActorPath` is the address for an actor's position in the system hierarchy). It's kind of like looking someone up on Skype by their email when you don't already have their username.
+액터가 알고 있는 `IActorRef` 통해 액터를 생성하거나 소멸시키는 작업을 하는 대신, `ActorPath`를 통해 액터의 handle을 "찾아(looking up)"서 할 수 있습니다(`ActorPath`가 시스템 계층에서 액터가 있는 위치에 대한 주소라는 것을 기억하세요.). 스카이프에서 username을 모르는 상태에서 email을 이용해 누군가를 찾는 것과 비슷합니다. 
 
-However, be aware that while `ActorSelection` is how you look up an `IActorRef`, it's not inherently a 1-1 lookup to a single actor.
+`ActorSelection`이 'IActorRef'를 찾는 방식이지만, 본질적으로 단일 액터를 1대1로 찾는 것은 아니라는 점을 유념해야 합니다.
 
-Technically, the `ActorSelection` object you get when you do a lookup does not point to a specific `IActorRef`. It's actually a handle that internally points to every `IActorRef` that matches the expression you looked up. Wildcards are supported in this expression, so it's an expression that selects 0+ actors. (More on this later.)
+기술적으로, 조회할 때 표시되는 `ActorSelection` 객체는 특정 `IActorRef`를 가리키지 않습니다. 검색(look up)한 표현식(expression)과 일치하는 모든 `IActorRef`를 가르키는 handle 입니다. 이 표현식에서는 와일드 카드가 지원되므로 0개 이상의 액터가 선택될 수 있습니다. (나중에 좀 더 다루도록 하겠습니다.)
 
-An `ActorSelection` will also match two different `IActorRef`s with the same name if the first one dies and is replaced by another (not restarted, in which case it would be the same `IActorRef`).
+`ActorSelection`에 의해 이름이 같은 - 첫 번째 액터가 소멸된 후 같은 이름으로 다시 생성한 - 서로 다른 두  `IActionRef`가 매칭될 수 있습니다. (재시작 하지 않은 상태에서, 이 경우 같은 `IActorRef`가 됩니다.)
 
-#### Is it an object? A process? Both?
-We think of `ActorSelection` as both a process and an object: the process of looking actor(s) up by `ActorPath`, and the object returned from that lookup, which allows us to send messages to the actor(s) matched by the expression we looked up.
+#### 오브젝트(object) 인가요? 프로세스(process)? 둘 다?
+`ActorSelect`이 프로세스(process)와 오브젝트(Object) 둘 모두라고 생각합니다: `ActorPath`로 액터를 찾는 프로세스와 그 과정에서 되돌아온 오브젝트는 우리가 찾던 표현과 일치하는 액터에게 메시지를 보낼 수 있게 해줍니다.
 
-### Why should I care about `ActorSelection`?
-In general, you should always try to use `IActorRef`s instead. But there are a couple of scenarios where `ActorSelection` are the right tool for the job and we cover those in more detail here: "[When Should I Use ActorSelection](https://petabridge.com/blog/when-should-I-use-actor-selection/)."
+### 왜 `ActorSelection`에 대해 신경써야 하나요?
+일반적으로 항상 `IActorRef`를 대신 사용해야 합니다. 그러나 `ActorSelection`이 작업에 적합한 도구인 몇 가지 시나리오가 있으며 여기에서 더 자세히 다룹니다: "[When Should I Use ActorSelection](https://petabridge.com/blog/when-should-I-use-actor-selection/)."
+
+#### 동적 행동(Dynamic behavor)
+동적 행동(Dyanmic behavor)은 Unit 2 초반에 파고드는 상급 개념이지만, 지금은 주어진 액터의 행동이 매우 유연할 수 있다는 것만 알아두시면 됩니다. 이를 통해 액터는 유한 상태 기계(Finite State Machines, FSM)와 같은 것을 쉽게 표현하여 작은 코드 설치 공간으로 복잡한 상황을 쉽게 처리할 수 있다.
+
+`ActorSelection`은 어디에서 활약을 할까요? 당신이 매우 역동적이고 적응력이 뛰어난 시스템을 원한다면, 아마도 많은 액터가 계층 구조에서 들어오고 나가는 가운데  그 모두에게 핸들(handle)을 저장 / 전달하는 것은 정말 고통 스러울 것입니다. `ActorSelection`을 사용하면 통신해야하는 키 액터의 잘 알려진 주소로 메시지를 쉽게 보낼 수 있고, 필요한 항목에 대한 핸들을 가져 오거나 / 전달 / 저장하는 것에 대해 걱정할 필요가 없습니다.
+
+또한 `ActorSelection`을 수행하는 데 필요한 `ActorPath` 조차 하드 코딩되지 않는 대신에 액터에 전달되는 메시지로 대표 될 수있는 극도로 동적인 액터를 빌드할 수 있습니다.
+
+#### 유연한 커뮤니케이션 패턴(Flexible communication patterns) == 적응형 시스템(adaptable system)
+개발자로서의 행복, 시스템의 탄력성 및 조직이 이동할 수있는 속도에 중요하기 때문에 이러한 적응성 아이디어를 가지고 실행 해 봅시다.
+
+작동하기 위해 모든 것을 결합 할 필요가 없기 때문에 개발주기가 빨라집니다. 이미 작성한 모든 것을 다시 돌아가서 변경할 필요없이 새로운 액터와 완전히 새로운 섹션을 액터 계층에 도입 할 수 있습니다. 당신의 시스템에는 새로운 액터(및 요구 사항)를 쉽게 확장하고 수용 할 수있는 훨씬 더 유연한 통신 구조를 가지고 있습니다..
 
 
-#### Dynamic behavior
-Dynamic behavior is an advanced concept that we dive into in the beginning of Unit 2, but for now just be aware that the behavior of a given actor can be very flexible. This lets actors easily represent things like Finite State Machines so a small code footprint can easily handle complex situations.
+#### 간단히 말해서: `ActorSelection`은 시스템을 변경에 훨씬 더 적합하게 만들고 더 강력하게 만듭니다.
 
-Where does `ActorSelection` come into play on this? Well, if you want to have a very dynamic and adaptable system, there are probably going to be lots of actors coming and going from the hierarchy and trying to store / pass around handles to all of them would be a real pain. `ActorSelection` lets you easily just send messages to well known addresses of the key actor(s) you need to communicate with, and not worry about getting/passing/storing handles to the things you need.
+### `ActorSelection`을 언제 사용해야 하나요?
+Petabridge는 "[When Should I Use `ActorSelection`?](https://petabridge.com/blog/when-should-I-use-actor-selection/)"라는 제목으로 이 주제에 대한 자세한 게시물을 게시했습니다.
 
-You also can build extremely dynamic actors where not even the `ActorPath` needed to do an `ActorSelection` is hardcoded, but can instead be represented by a message that is passed into your actor.
+Short version: 가능하다면 `ActorSelection`을 사용하지 마십시오. 하지만 때로는 이것이 현재 `IActorRef`가 없는 다른 액터와 통신 할 수있는 유일한 방법입니다.
 
-#### Flexible communication patterns == adaptable system
-Let's run w/ this idea of adaptability, because it's important for your happiness as a developer, the resilience of your system, and the speed at which your organization can move.
+### 주의: `ActorSelection`을 전달하지 마십시오.
+`IActorRef`처럼`ActorSelection`을 매개 변수로 전달하지 않는 것을 권합니다. `ActorSelection`이 절대적이 아니라 상대적 일 수 있기 때문인데, 이 경우 계층 구조에서 다른 위치를 가진 액터에 전달 될 때 의도 한 효과를 내지 못할 것입니다.
 
-Since you don't have to couple everything together to make it work, this will speed up your development cycles. You can introduce new actors and entirely new sections into the actor hierarchy without having to go back and change everything you've already written. Your system has a much more flexible communication structure that can expand and accommodate new actors (and requirements) easily.
+### `ActorSelection`은 어떻게 만드나요?
+매우 간단합니다: `var selection = Context.ActorSelection("/path/to/actorName");`
 
-#### In a nutshell: `ActorSelection` makes your system much more adaptable to change and also enables it to be more powerful.
+> NOTE: **액터 경로에는 액터 클래스명이 아닌 액터를 인스턴스화 할때 액터에 할당한 이름을 사용합니다. 액터를 만들 때 이름을 지정하지 않으면 시스템에서 고유한 이름을 자동으로 생성합니다.**
 
-### When should I use `ActorSelection`?
-Petabridge published a detailed post on this subject aptly titled "[When Should I Use `ActorSelection`?](https://petabridge.com/blog/when-should-I-use-actor-selection/)" - read that for the long version.
-
-Short version: avoid using `ActorSelection` if you can, but sometimes it's the only way to get into communication with another actor for which you don't currently have an `IActorRef`.
-
-### Caution: Don't pass `ActorSelection`s around
-We encourage you NOT to pass around `ActorSelection`s as parameters, the way you do `IActorRef`s. The reason for this is that `ActorSelection`s can be relative instead of absolute, in which case it wouldn't produce the intended effects when passed to an actor with a different location in the hierarchy.
-
-### How do I make an `ActorSelection`?
-Very simple: `var selection = Context.ActorSelection("/path/to/actorName");`
-
-> NOTE: **the path to an actor includes the name you assign to an actor when you instantiate it, NOT its class name. If you don't assign a name to an actor when you create it, the system will auto-generate a unique name for you**. 
-
-For example:
+예제:
 
 ```csharp
 class FooActor : UntypedActor {}
@@ -71,25 +71,26 @@ IActorRef myFooActor = MyActorSystem.ActorOf(props, "barBazActor");
 IActorRef myFooActor = MyActorSystem.ActorOf(props);
 ```
 
-### Do I send a message differently to an `ActorSelection` vs an `IActorRef`?
+### `ActorSelection`과 `IActorRef`에 다르게 메시지를 보내나요?
 Nope. You `Tell()` an `ActorSelection` a message just the same as an `IActorRef`:
+아니요. `ActorSelection`도 `IActorRef`와 똑같이 메시지를 보낼때 `Tell ()`을 사용합니다:
 
 ```csharp
 var selection = Context.ActorSelection("/path/to/actorName");
 selection.Tell(message);
 ```
 
-## Exercise
-Alright, let's get to it. This exercise will be short. We are only making some small optimizations to our system.
+## 실습
+좋아요, 시작해봅시다. 이번 실습은 짧습니다. 우리는 시스템을 약간만 최적화하면 됩니다.
 
-### Phase 1: Decouple `ConsoleReaderActor` and `FileValidatorActor`
-Right now, our `ConsoleReaderActor` needs to be given an `IActorRef` to be able to send the messages it reads from the console off for validation. In the current design, that's easy enough.
+### 1단계: `ConsoleReaderActor`와 `FileValidatorActor` 분리
+우리의 `ConsoleReaderActor`는 검증을 위해 콘솔에서 읽은 메시지를 보낼 수 있도록 `IActorRef`를 제공해야합니다. 지금의 디자인에서는 충분히 쉽습니다.
 
-BUT, imagine that `ConsoleReaderActor` was far away in the hierarchy from where the `FileValidatorActor` instance was created (`Program.cs` currently). In this case, there is no clean/easy way to pass in the needed `IActorRef` to `ConsoleReaderActor` without also passing it through every intermediary first.
+그러나 `ConsoleReaderActor`가 `FileValidatorActor` 인스턴스가 생성 된 계층 (현재`Program.cs`)에서 멀리 떨어져 있다고 가정할 경우 필요한`IActorRef`를 모든 중개자를 먼저 통과하지 않고 `ConsoleReaderActor`로 전달할 수있는 깔끔하고 쉬운 방법이 없습니다.
 
-Without `ActorSelection`, you'd have to pass the necessary `IActorRef` through every object between where the handle is created and used. That is coupling more and more objects together--**yuck**!
+`ActorSelection`이 없으면 핸들이 생성되고 사용되는 위치 사이의 모든 객체를 통해 필요한`IActorRef`를 전달해야합니다. 이는 객체사이에 점점더 높은 결합도를 요구합니다. -- **우웩**!
 
-Let's fix that by **removing the `validationActor` `IActorRef` that we're passing in**. The top of `ConsoleReaderActor` should now look like this:
+**전달중인 `validationActor` `IActorRef`를 제거**하여 문제를 해결해 보겠습니다. 이제`ConsoleReaderActor`의 상단이 다음과 같이 보일 것입니다:
 
 ```csharp
 // ConsoleReaderActor.cs
@@ -108,25 +109,26 @@ protected override void OnReceive(object message)
 }
 ```
 
-Then, let's update the call for message validation inside `ConsoleReaderActor` so that the actor doesn't have to hold onto a specific `IActorRef` and can just forward the message read from the console onto an `ActorPath` where it knows validation occurs.
+그런 다음, `ConsoleReaderActor` 안에 메시지 유효성 확인을 위한 호출 내용을 업데이트해서 특정 `IActorRef`를 알 필요 없이 콘솔에서 읽은 메시지를 `ActorPath`를 통해 유효성 검사를 하는 액터에 전달할 수 있도록 합니다.
 
 ```csharp
 // ConsoleReaderActor.GetAndValidateInput
 
 // otherwise, just send the message off for validation
-Context.ActorSelection("akka://MyActorSystem/user/validationActor").Tell(message);
+Context.ActorSelection("akka://MyActorSystem/user/validatorActor").Tell(message);
 ```
 
-Finally, let's update `consoleReaderProps` accordingly in `Program.cs` since its constructor no longer takes any arguments:
+마지막으로, 생성자가 더 이상 인수를 받지 않으므로 `Program.cs`에서 `consoleReaderProps`를 적절히 업데이트하겠습니다:
 ```csharp
 // Program.Main
 Props consoleReaderProps = Props.Create<ConsoleReaderActor>();
 ```
 
-### Phase 2: Decouple `FileValidatorActor` and `TailCoordinatorActor`
-Just as with `ConsoleReaderActor` and `FileValidatorActor`, the `FileValidatorActor` currently requires an `IActorRef` for the `TailCoordinatorActor` which it does not need. Let's fix that.
+### 2단계: `FileValidatorActor`와 `TailCoordinatorActor` 분리
+`ConsoleReaderActor`와 `FileValidatorActor`처럼, `FileValidatorActor`는 필요하지 않은`TailCoordinatorActor`에 대한 `IActorRef`가 필요합니다. 수정하겠습니다.
 
 First, **remove the `tailCoordinatorActor` argument to the constructor of `FileValidatorActor` and remove the accompanying field on the class**. The top of `FileValidatorActor.cs` should now look like this:
+먼저 **`FileValidatorActor`의 생성자와 멤버에서 `tailCoordinatorActor`를 제거합니다**. 이제 `FileValidatorActor.cs`의 상단이 다음과 같이 보일 것입니다.
 
 ```csharp
 // FileValidatorActor.cs
@@ -139,7 +141,7 @@ public FileValidatorActor(IActorRef consoleWriterActor)
 }
 ```
 
-Then, let's use `ActorSelection` to communicate between `FileValidatorActor` and `TailCoordinatorActor`! Update `FileValidatorActor` like this:
+다음으로, `ActorSelection`을 사용하여 `FileValidatorActor`와 `TailCoordinatorActor` 간의 통신을합시다! 다음과 같이 `FileValidatorActor`를 업데이트합니다:
 ```csharp
 // FileValidatorActor.cs
 // start coordinator
@@ -147,7 +149,7 @@ Context.ActorSelection("akka://MyActorSystem/user/tailCoordinatorActor").Tell(
     new TailCoordinatorActor.StartTail(msg, _consoleWriterActor));
 ```
 
-And finally, let's update `fileValidatorProps` in `Program.cs` to reflect the different constructor arguments:
+마지막으로, `Program.cs`의 `fileValidatorProps`를 업데이트하여 변경된 생성자 인수를 반영해 보겠습니다:
 
 ```csharp
 // Program.Main
@@ -155,17 +157,18 @@ Props fileValidatorActorProps = Props.Create(() =>
     new FileValidatorActor(consoleWriterActor));
 ```
 
-### Phase 3: Build and Run!
-Awesome! It's time to fire this baby up and see it in action.
+### 3단계: Build and Run!
+이제 우리의 시스템을 실행해 볼 시간입니다.
 
-Just as with the last lesson, you should be able to hit `F5` and run your log/text file and see additions to it appear in your console.
+지난 강의에서와 마찬가지로 `F5`키를 눌러 로그/텍스트 파일을 실행하면 추가 내용이 콘솔에 표시되는 것을 볼 수 있습니다.
 
 ![Petabridge Akka.NET Bootcamp Actor Selection Working](Images/selection_working.png)
 
 ### Hey, wait, go back! What about that `consoleWriterActor` passed to `FileValidatorActor`? Wasn't that unnecessarily coupling actors?
-Oh. You're good, you.
+### 이봐, 기다려, 돌아가! 'FileValidatorActor'에 전달 된 'consoleWriterActor'는 어때요? 불필요하게 액터를 연결하지 않았나요?
+오! 훌륭합니다!!
 
-We assume you're talking about this `IActorRef` that is still getting passed into `FileValidatorActor`:
+이 얘기를 하는 것 같군요, `FileValidatorActor`로 전달는 `IctorRef`:
 
 ```csharp
 // FileValidatorActor.cs
@@ -177,31 +180,22 @@ public FileValidatorActor(IActorRef consoleWriterActor)
 }
 ```
 
-*This one is a little counter-intuitive*. Here's the deal.
+*이것은 좀 직관적이지 않네요*. 제안을 하나 하겠습니다.
 
-In this case, we aren't using the handle for `consoleWriterActor` to talk directly to it. Instead we are putting that `IActorRef` inside a message that is getting sent somewhere else in the system for processing. When that message is received, the receiving actor will know everything it needs to in order to do its job.
+이 경우 `consoleWriterActor`의 핸들을 사용하여 직접 대화하지 않습니다. 대신 `IActorRef`를 시스템의 다른 곳으로 전송되는 메시지 안에 넣어 처리합니다. 메시지가 수신되면 수신 액터는 작업을 수행하기 위해 필요한 모든 것을 알게됩니다.
 
-This is actually a good design pattern in the actor model, because it makes the message being passed entirely self-contained and keeps the system as a whole flexible, even if this one actor (`FileValidatorActor`) needs an `IActorRef` passed in and is a little coupled.
+실제로 전달되는 메시지를 완전히 독립적으로 만들고, 이 한 액터(`FileValidatorActor`)에 `IActorRef`가 전달되어야하고, 시스템을 전체적으로 유연하게 유지하기 때문에 액터 모델에서 낮은 결합도를 가진 좋은 디자인 패턴입니다.
 
-Think about what is happening in the `TailCoordinatorActor` which is receiving this message: the job of the `TailCoordinatorActor` is to manage `TailActor`s which will actually observe and report file changes to... somewhere. We get to specify that somewhere up front.
+메시지를 받는 `TailCoordinatorActor`에서 무슨 일이 일어나고 있는지 생각해보십시오: `TailCoordinatorActor`의 역할은 실제로 파일 변경 사항을 관찰하고보고 할 `TailActor`를 관리하는 것입니다... 어딘가에 그것을 지정해야 합니다.
 
-`TailActor` should not have the reporting output location written directly into it. The reporting output location is a task-level detail that should be encapsulated as an instruction within the incoming message. In this case, that task is our custom `StartTail` message, which indeed contains the `IActorRef` for the previously mentioned `consoleWriterActor` as the `reporterActor`.
+'TailActor'에는 리포트 출력 위치가 직접 기록되어서는 안됩니다. 리포트 출력 위치는 들어오는 메시지 내에서 명령으로 캡슐화되어야할 작업 수준의 세부 정보입니다. 이 경우 대상 작업은 사용자 지정 `StartTail` 메시지이며, 실제로 이전에 언급한 `consoleWriterActor`에 대한 `IActorRef`를 `reporterActor`로 포함합니다.
 
-So, a little counter-intuitively, this pattern actually promotes loose coupling. You'll see it a lot as you go through Akka.NET, especially given the widespread use of the pattern of turning events into messages.
+반 직관적으로, 이 패턴은 실제로 느슨한 결합(loose coupling)을 촉진합니다. 특히 이벤트를 메시지로 바꾸는 패턴이 널리 사용되는 경우를 Akka.NET을 통해 많이 볼 수 있습니다.
 
-### Once you're done
-Compare your code to the solution in the [Completed](Completed/) folder to see what the instructors included in their samples.
+### 레슨을 마치고,
+작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
-## Great job! Almost Done! Onto Lesson 6!
-Awesome work! Well done on completing this lesson! We're on the home stretch of Unit 1, and you're doing awesome.
+## 수고하셨습니다! 이제 레슨6 차례입니다.
+수고하셨습니다! 레슨5를 무사히 끝냈습니다. Unit 1의 홈스테이지를 멋지게 진행하고 계십니다. 
 
-
-**Let's move onto [Lesson 6 - The Actor Lifecycle](../lesson6/README.md).**
-
-
-## Any questions?
-
-Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
-
-### Problems with the code?
-If there is a problem with the code running, or something else that needs to be fixed in this lesson, please [create an issue](https://github.com/petabridge/akka-bootcamp/issues) and we'll get right on it. This will benefit everyone going through Bootcamp.
+이제 [Akka 시작하기 1-6 : The Actor Lifecycle](../lesson6/README.md)을 향해 나아가 봅시다.

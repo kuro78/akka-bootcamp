@@ -359,6 +359,7 @@ Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
 ### 레슨을 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인해봅시다.
 모든 작업이 정상적으로 작동된다면, 출력은 지난번과 같아야 합니다:
+
 ![Petabridge Akka.NET Bootcamp Lesson 1.2 Correct Output](Images/working_lesson3.jpg)
 
 #### `Props`의 `typeof` 문법 위험성을 직접 경험해보고 싶을 경우
@@ -377,4 +378,4 @@ Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
 ## 수고하셨습니다! 이제 레슨4 차례입니다.
 수고하셨습니다! 레슨3을 무사히 끝냈습니다. 이번 레슨은 꾀나 큰 주제였습니다.
 
-이제 [Akka 시작하기 1-4 : Child Actors, Actor Hierarchies, and Supervision](../lesson4/README.md)를 향해 나아가 봅시다.
+이제 [Akka 시작하기 1-4 : 자식 액터, 액터 계층 구조, 그리고 감시(Supervision)](../lesson4/README.md)를 향해 나아가 봅시다.

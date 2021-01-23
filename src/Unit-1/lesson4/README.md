@@ -1,4 +1,4 @@
-# Akka 시작하기 1-4 : Child Actors, Actor Hierarchies, and Supervision
+# Akka 시작하기 1-4 : 자식 액터, 액터 계층 구조, 그리고 감시(Supervision)
 이번 레슨은 코드베이스의 기능과 액터 모델이 어떻게 작동하는지 이해하는 데 있어 큰 도움을 줄 것입니다.
 이번 레슨이 지금까지 중 가장 어려운 수업이니, 바로 시작합니다!
 
@@ -50,6 +50,7 @@
 액터시스템 내에서 액터는 계층 구조로 정리됩니다. `ActorSystem`자체에 직접 보고하는 "최상위" 액터와 다른 액터에게 보고하는 "자식(child)" 액터가 있음을 의미합니다.
 
 전반적인 계층 구조는 다음과 같습니다(잠시 후 하나씩 알아보겠습니다.):
+
 ![Petabridge Akka.NET Bootcamp Lesson 1.3 Actor Hierarchies](Images/hierarchy_overview.png)
 
 ### 계층 구조의 레벨이란?
@@ -57,6 +58,7 @@
 "Guardians"는 전체 시스템의 root 액터 입니다.
 
 계층 구조에서 최상단에 있는 이 3개의 액터를 말합니다:
+
 ![Petabridge Akka.NET Bootcamp Lesson 1.3 Actor Hierarchies](Images/guardians.png)
 
 ##### `/` 액터
@@ -78,6 +80,7 @@
 
 #### `/user` 액터의 계층 구조
 액터 계층 구조의 주요 포인트입니다: 애플리케이션 내에서 당신이 정의한 모든 액터들이 속합니다.
+
 ![Akka: User actor hierarchy](Images/user_actors.png)
 
 > `/user` 액터 바로 아래의 자식 액터를 "최상위 액터(top level actors)"라고 부릅니다.
@@ -523,7 +526,7 @@ IActorRef tailCoordinatorActor = MyActorSystem.ActorOf(tailCoordinatorProps, "ta
 
 // pass tailCoordinatorActor to fileValidatiorActorProps (just adding one extra arg)
 Props fileValidatorActorProps = Props.Create(() => new FileValidatorActor(consoleWriterActor, tailCoordinatorActor));
-IActorRef fileValidatorActor = MyActorSystem.ActorOf(fileValidatorActorProps, "ValidatorActor");
+IActorRef fileValidatorActor = MyActorSystem.ActorOf(fileValidatorActorProps, "validatorActor");
 ```
 
 #### `DoPrintInstructions` 수정
@@ -668,6 +671,7 @@ protected override SupervisorStrategy SupervisorStrategy()
 #### 동작
 ##### 화면에 나타나는 것을 확인
 어플리케이션을 실행하면 콘솔 윈도우에 로그파일의 내용이 나타나야 합니다. 제공한 로그파일을 사용하는 경우 화면은 다음과 같아야 합니다:
+
 ![Petabridge Akka.NET Bootcamp Actor Hierarchies](Images/working_tail_1.png)
 
 ** 콘솔과 파일을 모두 열어둔 채로 둡니다. 그리고...**
@@ -675,6 +679,7 @@ protected override SupervisorStrategy SupervisorStrategy()
 텍스트를 추가하고 tail이 잘 작동하는지 확인합니다! 텍스트 몇 줄을 추가하고, 저장합니다. tail이 잘 동작하는지 지켜봅니다!
 
 다음 처럼 보일겁니다:
+
 ![Petabridge Akka.NET Bootcamp Actor Hierarchies](Images/working_tail_2.png)
 
 축하합니다! 당신은 .NET을 이용해 `tail`을 포팅했습니다. 
@@ -683,9 +688,9 @@ protected override SupervisorStrategy SupervisorStrategy()
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
 ## 수고하셨습니다! 이제 레슨5 차례입니다.
-수고하셨습니다! 레슨4을 무사히 끝냈습니다. 이번 레슨을 통해 우리의 시스템과 당신의 이해에 큰 도약이 있었습니다. 
+수고하셨습니다! 레슨4를 무사히 끝냈습니다. 이번 레슨을 통해 우리의 시스템과 당신의 이해에 큰 도약이 있었습니다. 
 
-이제 [Akka 시작하기 1-5 : Looking up Actors by Address with `ActorSelection`](../lesson5/README.md)를 향해 나아가 봅시다.
+이제 [Akka 시작하기 1-5 : `ActorSelection`과 함께 주소로 액터 찾기](../lesson5/README.md)을 향해 나아가 봅시다.
 
 ## Supervision FAQ
 ### 자식 액터는 supervisor를 얼마나 기다리나요?
