@@ -1,12 +1,12 @@
-# Lesson 1.6: The Actor Lifecycle
-This last lesson will wrap up our "fundamentals series" on working with actors, and it ends with a critical concept: actor life cycle.
+# Akka 시작하기 1-6 : 액터 라이프사이클(The Actor Lifecycle)
+이 강의는 액터에 대한 중요한 개념 인 액터 라이프 사이클(the actor life sycle)을 끝으로 "기본 시리즈"를 마무리합니다.
 
 ## Key concepts / background
-### What is the actor life cycle?
-Actors have a well-defined life cycle. Actors are created and started, and then they spend most of their lives receiving messages. In the event that you no longer need an actor, you can terminate or "stop" an actor.
+### 액터 라이프사이클(actor life cycle)이란?
+액터에는 잘 정의 된 라이프사이클이 있습니다. 액터가 생성되고 시작후 대부분의 삶을 메시지를받는 데 보냅니다. 액터가 더 이상 필요하지 않은 경우 액터를 종료하거나 "중지"할 수 있습니다.
 
-### What are the stages of the actor life cycle?
-There are 5 stages of the actor life cycle in Akka.NET:
+### 액터 라이프사이클의 단계는 무엇인가요?
+Akka.NET의 액터 라이프사이클의 5 단계가 있습니다:
 
 1. `Starting`
 2. `Receiving`
@@ -16,50 +16,50 @@ There are 5 stages of the actor life cycle in Akka.NET:
 
 ![Akka.NET actor life cycle steps with explicit methods](Images/lifecycle.png)
 
-Let's take them in turn.
+차례대로 알아보도록 합니다.
 
 #### `Starting`
-This is the initial state of the actor, when it is being initialized by the `ActorSystem`.
+액터가 `ActorSystem`에 의해 초기화 될 때의 초기 상태입니다.
 
 #### `Receiving`
-The actor is now available to process messages. Its `Mailbox` (more on that later) will begin delivering messages into the `OnReceive` method of the actor for processing.
+이제 액터는 메시지를 처리 할 수 있습니다. `Mailbox`(나중에 자세히 설명하겠습니다)는 처리를 위해 액터의 `OnReceive`메소드로 메시지를 전달하기 시작합니다.
 
 #### `Stopping`
-During this phase, the actor is cleaning up its state. What happens during this phase depends on whether the actor is being terminated or restarted.
+액터는 상태(state)를 정리합니다. 이 단계에서 일어나는 일은 액터를 종료할지, 다시 시작할지 여부에 따라 다릅니다.
 
-If the actor is being restarted, it's common to save state or messages during this phase to be processed once the actor is back in its Receiving state after the restart.
+액터가 다시 시작될 예정 이라면, 액터가 다시 시작된 후 `Receiving` 상태로 돌아 오면 처리 할 상태 또는 메시지를 이 단계 동안 저장하는 것이 일반적입니다.
 
-If the actor is being terminated, all the messages in its `Mailbox` will be sent to the `DeadLetters` mailbox of the `ActorSystem`. `DeadLetters` is a store of undeliverable messages, usually because an actor is dead.
+액터가 종료될 예정 이라면, `Mailbox`의 모든 메시지가 `ActorSystem`의 `DeadLetters` 메일 함으로 전송됩니다. `DeadLetters`는 보통 액터가 소멸되었기 때문에 배달 할 수 없는 메시지의 저장소입니다.
 
 #### `Terminated`
-The actor is dead. Any messages sent to its former `IActorRef` will now go to `DeadLetters` instead. The actor cannot be restarted, but a new actor can be created at its former address (which will have a new `IActorRef` but an identical `ActorPath`).
+액터가 소멸되었습니다. `IActorRef`를 통해 전송 된 모든 메시지는 이제 `DeadLetters`로 이동합니다. 액터는 다시 시작할 수 없지만 같은 주소를 가진 새로운 액터를 생성 할 수 있습니다(`IActorRef`가 다르지만 `ActorPath`가 같음).
 
 #### `Restarting`
-The actor is about to restart and go back into a `Starting` state.
+액터가 다시 시작되고 `Starting`상태로 돌아갑니다.
 
-### Life cycle hook methods
-So, how can you link into the actor life cycle? Here are the 4 places you can hook in.
+### 라이프사이클(Life cycle) 후크 방법(hook methods)
+그렇다면, 어떻게 액터 라이프사이클에 연결할 수 있을까요? 연결할 수 있는 4개의 메소드가 있습니다.
 
 #### `PreStart`
-`PreStart` logic gets run before the actor can begin receiving messages and is a good place to put initialization logic. Gets called during restarts too.
+액터가 메시지 수신을 시작하기 전에 `PreStart` 로직이 실행됩니다. 초기화 로직을 배치하는 것이 좋습니다. 다시 시작하는 동안에도 호출됩니다.
 
 #### `PreRestart`
-If your actor fails (i.e. throws an unhandled Exception) the actor's parent will restart the actor. `PreRestart` is where you can hook in to do cleanup before the actor restarts, or to save the current message for reprocessing later.
+액터가 실패하면 (예: 처리되지 않은 예외 발생) 부모 액터가 액터를 다시 시작합니다. `PreRestart`는 액터가 다시 시작되기 전에 정리를 수행하거나 나중에 재 처리하기 위해 현재 메시지를 저장하기 위해 연결할 수있는 메소드입니다.
 
 #### `PostStop`
-`PostStop` is called once the actor has stopped and is no longer receiving messages. This is a good place to include clean-up logic. PostStop also gets called during `PreRestart`, but you can override `PreRestart` and simply not call `base.PreRestart` if you want to avoid this behavior during restarts.
+`PostStop`은 액터가 중지되고 더 이상 메시지를 수신하지 않으면 호출됩니다. 이것은 정리 로직을 포함하기에 좋은 곳입니다. PostStop은 `PreRestart` 중에도 호출되지만, 재시작 중에 이 동작을 피하려면 `PreRestart`를 재정의해서 `base.PreRestart`를 호출하지 않아도됩니다.
 
-`DeathWatch` is also when an actor notifies any other actors that have subscribed to be alerted when it terminates. `DeathWatch` is just a pub/sub system built into framework for any actor to be alerted to the termination of any other actor.
+`DeathWatch`는 액터가 구독이 종료되면 알림을 받도록 구독 한 다른 액터에게 알릴 때도 사용됩니다. `DeathWatch`는 모든 액터가 다른 액터의 종료에 대해 알림을 받을 수 있도록 프레임 워크에 내장 된 게시 / 구독 시스템입니다.
 
 #### `PostRestart`
-`PostRestart` is called during restarts after PreRestart but before PreStart. This is a good place to do any additional reporting or diagnosis on the error that caused the actor to crash, beyond what Akka.NET already does for you.
+`PostRestart`는 PreRestart 후 재시작 중 PreStart 이전에 호출됩니다. Akka.NET이 이미 수행한 작업을 넘어서 액터 충돌을 유발한 오류에 대한 추가보고 또는 진단을 수행 할 수있는 좋은 메소드입니다.
 
-Here's where the hook methods fit into the stages of the life cycle:
+다음은 후크 메서드가 라이프사이클 단계에 적합한 위치입니다:
 
 ![Akka.NET actor life cycle steps with explicit methods](Images/lifecycle_methods.png)
 
-### How do I hook into the life cycle?
-To hook in, you just override the method you want to hook into, like this:
+### 라이프사이클을 어떻게 후킹하나요?
+후킹하려면, 다음과 같이 후킹하려는 메서드를 재정의하면됩니다:
 
 ```csharp
  /// <summary>
@@ -71,26 +71,26 @@ protected override void PreStart()
 }
 ```
 
-### Which are the most commonly used life cycle methods?
+### 가장 일반적으로 사용되는 라이프사이클 메소드는 무엇인가요?
 #### `PreStart`
-`PreStart` is far and away the most common hook method used. It is used to set up initial state for the actor and run any custom initialization logic your actor needs.
+`PreStart`는 가장 많이 사용되는 후크 메소드입니다. 액터의 초기 상태를 설정하고 액터에 필요한 사용자 지정 초기화 로직을 실행하는 데 사용됩니다.
 
 #### `PostStop`
-The second most common place to hook into the life cycle is in `PostStop`, to do custom cleanup logic. For example, you may want to make sure your actor releases file system handles or any other resources it is consuming from the system before it terminates.
+두 번째 메소드는 사용자 지정 정리 논리를 수행하는 `PostStop`입니다. 예를 들어, 액터가 종료하기 전에 파일 시스템 핸들이나 시스템에서 소비하고있는 다른 리소스를 해제하도록 할 수 있습니다.
 
 #### `PreRestart`
-`PreRestart` is in a distant third to the above methods, but you will occasionally use it. What you use it for is highly dependent on what the actor does, but one common case is to stash a message or otherwise take steps to get it back for reprocessing once the actor restarts.
+`PreRestart`는 위의 메소드보다 1/3 정도 떨어지지만 가끔 사용합니다. PreRestart를 사용하는 것은 액터가하는 일에 크게 의존하지만, 한 가지 일반적인 경우는 메시지를 숨기거나 액터가 다시 시작되면 재 처리를 하기위한 조치를 취하는 것입니다.
 
-### How does this relate to supervision?
-In the event that an actor accidentally crashes (i.e. throws an unhandled Exception,) the actor's supervisor will automatically restart the actor's lifecycle from scratch - without losing any of the remaining messages still in the actor's mailbox.
+### 감시(supervision)와 관련이 있나요?
+액터가 실수로 충돌하는 경우 (즉, 처리되지 않은 예외가 발생하는 경우) 액터의 감독자는 액터의 메일함에 남아있는 메시지를 잃지 않고 처음부터 액터의 라이프 사이클을 자동으로 다시 시작합니다.
 
-As we covered in lesson 4 on the actor hierarchy/supervision, what occurs in the case of an unhandled error is determined by the `SupervisionDirective` of the parent. That parent can instruct the child to terminate, restart, or ignore the error and pick up where it left off. The default is to restart, so that any bad state is blown away and the actor starts clean. Restarts are cheap.
+레슨4에서 액터 계층 / 감시에 대해 언급했듯이 처리되지 않은 오류에 대한 동작은 부모 액터의 `감시 지침(SupervisionDirective)`에 의해 결정됩니다. 부모 액터는 자식 액터에게 오류에 대해 종료, 다시 시작 또는 무시하도록 지시하고 중단 된 부분부터 다시 시작할 수 있습니다. 기본값은 다시 시작하는 것이므로 잘못된 상태가 사라지고 액터가 깨끗하게 시작됩니다. 재시작이 저렴한 방법입니다.
 
-## Exercise
-This final exercise is very short, as our system is already complete. We're just going to use it to optimize the initialization and shutdown of `TailActor`.
+## 실습
+마지막 실습은 우리의 시스템이 이미 완성되어 있기에 매우 짧습니다. `TailActor`의 초기화 및 종료를 최적화하는 데 집중합니다.
 
-### Move initialization logic from `TailActor` constructor to `PreStart()`
-See all this in the constructor of `TailActor`?
+### 초기화 로직을 `TailActor` 생성자에서 `PreStart()`로 이동
+이 모든 것이 `TailActor`의 생성자안에서 보입니까?
 
 ```csharp
 // TailActor.cs constructor
@@ -109,13 +109,14 @@ var text = _fileStreamReader.ReadToEnd();
 Self.Tell(new InitialRead(_filePath, text));
 ```
 
-While it works, initialization logic really belongs in the `PreStart()` method.
+생성자의 초기화 로직은 실제로 `PreStart()`메소드에 속합니다.
 
-Time to use your first life cycle method!
+첫 번째 라이프사이클 메소드를 사용할 시간입니다!
 
 Pull all of the above initialization logic out of the `TailActor` constructor and move it into `PreStart()`. We'll also need to change `_observer`, `_fileStream`, and `_fileStreamReader` to non-readonly fields since they're moving out of the constructor.
+위의 모든 초기화 로직을 `TailActor` 생성자에서 `PreStart()`로 이동 시킵니다. `_observer`, `_fileStream`과 `_fileStreamReader`가 생성자에서 이동하므로 읽기 readonly가 아닌 필드로 변경해야합니다.
 
-The top of `TailActor.cs` should now look like this
+이제 `TailActor.cs`의 상단을 다음과 같이 변경합니다:
 
 ```csharp
 // TailActor.cs
@@ -155,12 +156,12 @@ protected override void PreStart()
 }
 ```
 
-Much better! Okay, what's next?
+훨씬 낫네요! 좋아요, 다음은 뭐죠?
 
-### Let's clean up and take good care of our `FileSystem` resources
-`TailActor` instances are each storing OS handles in `_fileStreamReader` and `FileObserver`. Let's use `PostStop()` to make sure those handles are cleaned up and we are releasing all our resources back to the OS.
+### `FileSystem` 리소스를 정리하고 잘 관리합시다.
+`TailActor` 인스턴스는 OS 핸들을 `_fileStreamReader`와 `FileObserver`에 각각 저장합니다. `PostStop()`을 사용해 해당 핸들이 정리되었는지 확인하고 모든 리소스를 OS에 다시 릴리즈합니다.
 
-Add this to `TailActor`:
+다음을 `TailActor`에 추가합니다:
 
 ```csharp
 // TailActor.cs
@@ -178,19 +179,11 @@ protected override void PostStop()
 }
 ```
 
-### Phase 4: Build and Run!
-That's it! Hit `F5` to run the solution and it should work exactly the same as before, albeit a little more optimized. :)
+### 4단계: Build and Run!
+끝났습니다! `F5`를 눌러 솔루션을 실행하면 조금 더 최적화되었지만 이전과 똑같이 작동합니다. :)
 
-### Once you're done
-Compare your code to the solution in the [Completed](Completed/) folder to see what the instructors included in their samples.
+### 레슨을 마치고,
+작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
-## Great job!
-
-**Ready for more? [Start Unit 2 now](../../Unit-2/README.md "Akka.NET Bootcamp Unit 2").**
-
-## Any questions?
-
-Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
-
-### Problems with the code?
-If there is a problem with the code running, or something else that needs to be fixed in this lesson, please [create an issue](https://github.com/petabridge/akka-bootcamp/issues) and we'll get right on it. This will benefit everyone going through Bootcamp.
+## 수고하셨습니다!
+**더 배우고 싶은가요? [지금 Unit 2를 시작해 보세요.](../../Unit-2/README.md "Akka.NET Bootcamp Unit 2").**

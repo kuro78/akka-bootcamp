@@ -198,4 +198,4 @@ public FileValidatorActor(IActorRef consoleWriterActor)
 ## 수고하셨습니다! 이제 레슨6 차례입니다.
 수고하셨습니다! 레슨5를 무사히 끝냈습니다. Unit 1의 홈스테이지를 멋지게 진행하고 계십니다. 
 
-이제 [Akka 시작하기 1-6 : The Actor Lifecycle](../lesson6/README.md)을 향해 나아가 봅시다.
+이제 [Akka 시작하기 1-6 : 액터 라이프 사이클(The Actor Lifecycle)](../lesson6/README.md)을 향해 나아가 봅시다.
