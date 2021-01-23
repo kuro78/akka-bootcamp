@@ -1,24 +1,24 @@
-# Lesson 1.2: Defining and Handling Messages
-In this lesson, you will make your own message types and learn how to control processing flow within your actors based on your custom messages. Doing so will teach you the fundamentals of communicating in a message- and event-driven manner within your actor system.
+# Akka 시작하기 1-2 : 메시지 정의 및 핸들링
+이번 시간에는 고유의 메세지 타입을 만들고, 커스텀 메세지를 기반으로 액터 내에서 처리 흐름(processing flow)을 제어하는 방법을 배워보겠습니다. 또한, 액터 시스템에서 메시지 및 이벤트 기반 방식의 커뮤니케이팅 기본을 알려드릴 것입니다.
 
-This lesson picks up right where Lesson 1 left off, and continues extending our budding systems of console actors. In addition to defining our own messages, we'll also add some simple validation for the input we enter and take action based on the results of that validation.
+지난 포스팅에서 작성했던 콘솔 액터 시스템을 계속 확장해가며 진행할 것입니다. 우리는 우리가 사용할 메세지를 정의하는 것뿐만 아니라, 간단한 입력 검증과 검증의 결과에 따라 취해질 액션 또한 추가할 것입니다.
 
 ## Key concepts / background
-### What is a message?
-Any POCO can be a message. A message can be a `string`, a value like `int`, a type, an object that implements an interface... whatever you want.
+### 메세지(message) 란?
+모든 POCO는 메세지가 될 수 있습니다. 메세지는 `string`, `int`와 같은 value, 인터페이스를 구현하는 오브젝트 등 당신이 원하는 뭐든지 될 수 있습니다.
 
-That being said, the recommended approach is to make your own custom messages into semantically named classes, and to encapsulate any state you want inside those classes (e.g. store a `Reason` inside a `ValidationFailed` class... hint, hint...).
+그렇지만, 당신의 커스텀 메세지를 의미 있는 이름의 클래스로 만들고, 원하는 상태를 클래스 안에 캡슐화하는 방법을 추천합니다. (`ValidationFailed` 클래스 내부에 `Reason`을 저장.. 힌트입니다)
 
-### How do I send an actor a message?
-As you saw in the first lesson, you `Tell()` the actor the message.
+### 액터(actor)에게 메세지를 보내려면 어떻게 하죠?
+지난 시간에 잠깐 봤습니다. `Tell()`을 이용해서 보낼 수 있습니다.
 
-### How do I handle a message?
-This is entirely up to you, and doesn't really have much to do with Akka.NET. You can handle (or not handle) a message as you choose within an actor.
+### 메세지를 어떻게 처리(handle)하죠?
+이것은 전적으로 당신에게 달려있습니다. 그리고 사실 Akka.NET과 그다지 연관이 없습니다. 당신의 액터 내 선택에 따라 처리할 수도, 처리하지 않을 수도 있습니다.
 
-### What happens if my actor receives a message it doesn't know how to handle?
-Actors ignore messages they don't know how to handle. Whether or not this ignored message is logged as such depends on the type of actor.
+### 내 액터가 처리하는 법을 모르는 메세지를 받으면 어떻게 되죠?
+액터는 처리하는 법을 모르는 메세지는 무시합니다. 무시된 메세지는 액터의 종류에 따라 로깅 되기도 합니다.
 
-With an `UntypedActor`, unhandled messages are not logged as unhandled unless you manually mark them as such, like so:
+`UntypedActor`에서는, 처리되지 않은 메세지를 수동으로 `Unhandled()`하지 않는 이상 로깅되지 않습니다:
 
 ```csharp
 
@@ -40,22 +40,22 @@ class MyActor : UntypedActor
 }
 ```
 
-However, in a `ReceiveActor`—which we cover in Unit 2—unhandled messages are automatically sent to `Unhandled` so the logging is done for you.
+그렇지만, `ReceiveActor`(나중에 2장에서 다룰 것입니다)에서는 처리되지 않은 메세지는 자동으로 `Unhandled`로 보내고 로깅이 수행됩니다.
 
-### How do my actors respond to messages?
-This is up to you - you can respond by simply processing the message, replying to the `Sender`, forwarding the message onto another actor, or doing nothing at all.
+### 내 액터가 메세지에 어떻게 반응해야 하죠?
+당신에게 달려있습니다. 당신은 간단히 메세지를 처리하거나, `Sender`에게 응답하거나, 다른 액터에게 전달하거나, 아무것도 안 하고 끝낼 수 있습니다.
 
-> **NOTE:** Whenever your actor receives a message, it will always have the sender of the current message available via the `Sender` property inside your actor.
+> **NOTE:** 액터가 메세지를 받았을 때는 항상 액터 내부의 `Sender` 속성을 통해 현재 메세지 발신자의 참조를 가지고 있습니다.
 
-## Exercise
-In this exercise, we will introduce some basic validation into our system. We will then use custom message types to signal the results of that validation back to the user.
+## 실습
+이번 실습에서는, 우리의 시스템에 유효성 검사를 추가할 것입니다. 상용자의 입력을 검사하고, 커스텀 메세지 타입을 사용해서 검증 결과를 다시 사용자에게 알려줄 것입니다.
 
-### Phase 1: Define your own message types
-#### Add a new class called `Messages` and the corresponding file, `Messages.cs`.
-This is the class we'll use to define system-level messages that we can use to signal events. The pattern we'll be using is to turn events into messages. That is, when an event occurs, we will send an appropriate message class to the actor(s) that need to know about it, and then listen for / respond to that message as needed in the receiving actors.
+### 1단계: 메세지 타입 정의
+#### `Messages.cs` 파일을 추가하고, `Messages` 클래스를 만듭니다.
+이 클래스는 이벤트를 알리는 것에 사용할 시스템 레벨 메세지(system-level messages)를 정의하는데 이용할 것입니다. 우리는 이벤트를 메세지로 바꾸는 패턴을 사용할 것입니다. 즉, 이벤트가 발생하면, 그것에 대해 알아야 할 필요가 있는 액터(들)에게 적절한 메세지 클래스를 보낼 것이고, 그리고 수신하는 액터 측에서 필요에 따라 메세지를 듣고 응답할 것입니다.
 
-#### Add regions for each message type
-Add three regions for different types of messages to the file. Next we'll be creating our own message classes that we'll use to signify events.
+#### 각 메세지 타입에 따라 region을 추가합니다.
+파일에 3개의 각기 다른 메세지 타입을 위한 region을 추가합니다. 다음으로, 우리는 이벤트를 알리는 것에 사용할 메세지 클래스를 만들 것입니다.
 
 ```csharp
 // in Messages.cs
@@ -69,14 +69,14 @@ Add three regions for different types of messages to the file. Next we'll be cre
 #endregion
 ```
 
-In these regions we will define custom message types to signal these situations:
-	- user provided blank input
-	- user provided invalid input
-	- user provided valid input
+우리는 regions 안에 다음과 같은 상황을 알리기 위한 커스텀 메세지 타입을 정의할 것입니다:
+	- 사용자가 비어있는(blank) 입력을 한 경우
+	- 사용자가 잘못된 입력을 한 경우
+	- 사용자가 올바른 입력을 한 경우
 
 
-#### Make `ContinueProcessing` message
-Define a marker message class in the `Neutral/system messages` region that we'll use to signal to continue processing (the "blank input" case):
+#### `ContinueProcessing` 메세지를 만듭니다.
+`Neutral/system messages` 안에 마커 메세지 클래스를 정의합니다. 이는 처리를 계속하라고 신호를 보내는 것에 사용합니다. ("비어있는 입력" 케이스):
 
 ```csharp
 // in Messages.cs
@@ -88,8 +88,8 @@ public class ContinueProcessing { }
 #endregion
 ```
 
-#### Make `InputSuccess` message
-Define an `InputSuccess` class in the `Success messages` region. We'll use this to signal that the user's input was good and passed validation (the "valid input" case):
+#### `InputSuccess` 메세지를 만듭니다.
+`Success messages` 안에 `InputSuccess` 클래스를 정의합니다. 우리는 이것을 사용자의 입력이 올바르고 검증을 통과할 때 보낼 신호로 사용할 것입니다. ("올바른 입력" 케이스) :
 
 ```csharp
 #region Success messages
@@ -109,8 +109,8 @@ public class InputSuccess
 #endregion
 ```
 
-#### Make `InputError` messages
-Define the following `InputError` classes in the `Error messages` region. We'll use these messages to signal invalid input occurring (the "invalid input" cases):
+#### `InputError` 메세지를 만듭니다.
+`Error messages` 안에 `InputError` 클래스를 정의합니다. 우리는 이것을 잘못된 입력이 발생했을 때 보낼 신호로 사용할 것입니다. ("잘못된 입력" 케이스):
 
 ```csharp
 // in Messages.cs
@@ -147,21 +147,21 @@ public class ValidationError : InputError
 ```
 
 
-> **NOTE:** You can compare your final `Messages.cs` to [Messages.cs](Completed/Messages.cs/) to make sure you're set up right before we go on.
+> **NOTE:** 완성된 예제 [Messages.cs](Completed/Messages.cs/)를 보고 제대로 작성했는지 확인하실 수 있습니다.
 
-### Phase 2: Turn events into messages and send them
-Great! Now that we've got messages classes set up to wrap our events, let's use them in `ConsoleReaderActor` and `ConsoleWriterActor`.
+### 2단계: 이벤트를 메세지로 변환 및 전송
+잘했습니다! 우리는 이벤트를 감싸고(wrap) 있는 메세지를 만들었습니다. 이제 `ConsoleReaderActor`와 `ConsoleWriterActor`에서 사용해봅시다.
 
-#### Update `ConsoleReaderActor`
-Add the following internal message type to `ConsoleReaderActor`:
+#### `ConsoleReaderActor`를 수정하세요.
+`ConsoleReaderActor`에 내부 메세지 타입을 추가해주세요:
 ```csharp
 // in ConsoleReaderActor
 public const string StartCommand = "start";
 ```
 
-Update the `Main` method to use `ConsoleReaderActor.StartCommand`:
+`Main` 메서드에서 `ConsoleReaderActor.StartCommand`을 사용하도록 수정합니다.
 
-Replace this:
+수정 전:
 
 ```csharp
 // in Program.cs
@@ -169,7 +169,7 @@ Replace this:
 consoleReaderActor.Tell("start");
 ```
 
-with this:
+수정 후:
 
 ```csharp
 // in Program.cs
@@ -177,7 +177,7 @@ with this:
 consoleReaderActor.Tell(ConsoleReaderActor.StartCommand);
 ```
 
-Replace the `OnReceive` method of `ConsoleReaderActor` as follows. Notice that we're now listening for our custom `InputError` messages, and taking action when we get an error.
+`C`onsoleReaderActor`의 `OnReceive` 메서드를 다음과 같이 수정해주세요. 이제 우리는 이제 우리의 커스텀 `InputError` 메세지를 듣고(listening), 에러가 발생하면 적절한 조치를 한다는 점을 주목해주세요.
 
 ```csharp
 // in ConsoleReaderActor
@@ -196,7 +196,7 @@ protected override void OnReceive(object message)
 }
 ```
 
-While we're at it, let's add `DoPrintInstructions()`, `GetAndValidateInput()`, `IsValid()` to `ConsoleReaderActor`. These are internal methods that our `ConsoleReaderActor` will use to get input from the console and determine if it is valid. (Currently, "valid" just means that the input had an even number of characters. It's an arbitrary placeholder.)
+그리고 `ConsoleReaderActor`에 `DoPrintInstructions()`, `GetAndValidateInput()`, `IsValid()`도 추가합니다. 이것들은 `ConsoleReaderActor`이 콘솔에서 입력을 받고 입력이 유효한지 검증할 때 사용할 내부 메서드입니다. (현재, "검증"은 단지 입력한 문자열이 짝수개인지 확인합니다.)
 
 ```csharp
 // in ConsoleReaderActor, after OnReceive()
@@ -259,12 +259,12 @@ private static bool IsValid(string message)
 #endregion
 ```
 
-#### Update `Program`
-First, remove the definition and call to `PrintInstructions()` from `Program.cs`.
+#### `Program`을 수정합니다.
+첫 번째로, `Program.cs`에서 `PrintInstructions()`을 제거합니다. 
 
-Now that `ConsoleReaderActor` has its own well-defined `StartCommand`, let's go ahead and use that instead of hardcoding the string "start" into the message.
+그리고, `ConsoleReaderActor`에 만족스럽게 정의된 `StartCommand`가 있으므로 message 안에 하드코딩된 “start” 문자열 대신 이것을 사용합니다.
 
-As a quick checkpoint, your `Main()` should now look like this:
+작업이 완료되면 `Main()`은 다음과 같아야 합니다:
 ```csharp
 static void Main(string[] args)
 {
@@ -284,12 +284,12 @@ static void Main(string[] args)
 }
 ```
 
-Not much has changed here, just a bit of cleanup.
+약간의 정리 외에 크게 바뀌지는 않았습니다.
 
-#### Update `ConsoleWriterActor`
-Now, let's get `ConsoleWriterActor` to handle these new types of messages.
+#### `ConsoleWriterActor`를 수정합니다.
+이제, `C`onsoleWriterActor`가 새로운 메세지 타입들을 처리하게 합시다.
 
-Change the `OnReceive` method of `ConsoleWriterActor` as follows:
+`ConsoleWriterActor`의 `OnReceive` 메서드를 다음과 같이 바꿉니다:
 
 ```csharp
 // in ConsoleWriterActor.cs
@@ -316,25 +316,18 @@ protected override void OnReceive(object message)
 }
 ```
 
-As you can see here, we are making `ConsoleWriterActor` pattern match against the type of message it receives, and take different actions according to what type of message it receives.
+보시는 바와 같이, `ConsoleWriterActor`에서 수신한 메세지의 타입을 검사하고, 어떤 메세지 타입을 수신했냐에 따라 다른 처리를 하도록 만들었습니다.
 
-### Phase 3: Build and run!
-You should now have everything you need in place to be able to build and run. Give it a try!
+### 3단계: Build and Run!
+이제 빌드하고 실행하기 위한 모든 준비가 되었으면, 시도해봅시다!
 
-If everything is working as it should, you should see an output like this:
+화면이 다음과 같이 나타날 경우, 정상적으로 작동하는 것입니다:
 ![Petabridge Akka.NET Bootcamp Lesson 1.2 Correct Output](Images/working_lesson2.jpg)
 
-### Once you're done
-Compare your code to the solution in the [Completed](Completed/) folder to see what the instructors included in their samples.
+### 모든 과정이 끝났을 경우,
+작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가되었는지 확인해봅시다.
 
-##  Great job! Onto Lesson 3!
-Awesome work! Well done on completing this lesson.
+##  수고하셨습니다! 레슨3 차례입니다.
+레슨2를 무사히 끝냈습니다. 레슨3를 향해 나아가봅시다.
 
-**Let's move onto [Lesson 3 - `Props` and `IActorRef`s](../lesson3/README.md).**
-
-## Any questions?
-
-Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
-
-### Problems with the code?
-If there is a problem with the code running, or something else that needs to be fixed in this lesson, please [create an issue](https://github.com/petabridge/akka-bootcamp/issues) and we'll get right on it. This will benefit everyone going through Bootcamp.
+**[Akka 시작하기 1-3 : `Props`와 `IActorRef`](../lesson3/README.md).**
