@@ -1,4 +1,4 @@
-# Akka 시작하기 - 1.5: `ActorSelection`과 함께 주소로 액터 찾기
+# Akka 기초 1-5: `ActorSelection`과 함께 주소로 액터 찾기
 이번 레슨에서는 액터들을 서로 조금씩 분리하는 방법과 액터들 간의 새로운 소통 방법을 배워보겠습니다: [`ActorSelection`](http://api.getakka.net/docs/stable/html/CC0731A6.htm "Akka.NET Stable API Docs - ActorSelection class"). 이번 레슨은 이전의 수업들 보다 짧습니다. 이제 우리는 탄탄한 개념적 토대를 마련했습니다.
 
 ## Key concepts / background
@@ -198,4 +198,4 @@ public FileValidatorActor(IActorRef consoleWriterActor)
 ## 수고하셨습니다! 이제 레슨6 차례입니다.
 수고하셨습니다! 레슨5를 무사히 끝냈습니다. Unit 1의 홈스테이지를 멋지게 진행하고 계십니다. 
 
-이제 [Akka 시작하기 1-6 : 액터 라이프 사이클(The Actor Lifecycle)](../lesson6/README.md)을 향해 나아가 봅시다.
+이제 [Akka 기초 1-6 : 액터 라이프 사이클(The Actor Lifecycle)](../lesson6/README.md)을 향해 나아가 봅시다.

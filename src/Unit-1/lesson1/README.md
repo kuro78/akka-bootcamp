@@ -1,4 +1,4 @@
-# Akka 시작하기 1-1 : 액터와 `액터시스템(ActorSystem)`
+# Akka 기초 1-1 : 액터와 `액터시스템(ActorSystem)`
 시작합시다! 첫 번째 강의에 오신걸 환영합니다.
 
 이번 시간에는 [Akka.NET](http://getakka.net/)의 기본을 소개하고, 액터를 직접 만들어볼 것입니다.
@@ -165,4 +165,4 @@ new ConsoleReaderActor(consoleWriterActor)));
 ## 수고하셨습니다! 이제 레슨2 차례입니다.
 정말 잘했어요! 첫 수업을 잘 마쳤습니다.
 
-이제 [Akka 시작하기 1-2 : 메시지 정의 및 핸들링](../lesson2/README.md)을 향해 나아가 봅시다.
+이제 [Akka 기초 1-2 : 메시지 정의 및 핸들링](../lesson2/README.md)을 향해 나아가 봅시다.

@@ -1,41 +1,41 @@
-# Akka.NET Bootcamp - Unit 2: Intermediate Akka.NET
+# Akka.NET Bootcamp - Unit 2: Akka.NET 중급
 
-In **[Unit 1](../Unit-1/README.md)**, we learned some of the fundamentals of Akka.NET and the Actor Model.
+**[Unit 1](../Unit-1/README.md)**에서, Akka.NET과 Actor Model의 기본 사항을 배웠습니다.
 
-In Unit 2 we will learn some of the more sophisticated concepts behind Akka.NET, such as pattern matching, basic Akka.NET configuration, scheduled messages, and much more!
+Unit 2에서는 패턴 매칭, 기본 Akka.NET 구성, 예약 된 메시지 등과 같은 Akka.NET의 보다 정교한 개념 중 일부를 배웁니다!
 
-## Concepts you'll learn
+## 개념 학습
 
-In Unit 2 you're going to build your own version of Resource Monitor using Windows Forms, data visualization tools built into .NET, and [Performance Counters](https://msdn.microsoft.com/en-us/library/system.diagnostics.performancecounter.aspx "PerformanceCounter Class - C#").
+Unit 2에서는 Windows Forms, .NET에 내장 된 데이터 시각화 도구 및 [Performance Counters](https://msdn.microsoft.com/en-us/library/system.diagnostics.performancecounter.aspx "PerformanceCounter Class - C#")를 사용하여 고유 한 버전의 리소스 모니터를 빌드 할 것입니다.
 
-In fact, here's what the final output from lesson 5 looks like:
+레슨 5의 최종 출력은 다음과 같습니다:
 
 ![Akka.NET Bootcamp Unit 2 Output](lesson5/images/syncharting-complete-output.gif)
 
-> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/blob/master/src/Unit-2/lesson5/images/syncharting-complete-output.gif).
+> NOTE: eBook / .ePub를 사용하여 따라하는 경우 애니메이션이 표시되지 않습니다. [여기를 눌러 확인하세요.](https://github.com/petabridge/akka-bootcamp/blob/master/src/Unit-2/lesson5/images/syncharting-complete-output.gif).
 
-**You're going to build this whole thing using actors**, and you'll be surprised at how small your code footprint is when we're done.
+**액터를 사용하여 이 모든 것을 구축 할 것이며**, 작업이 끝나면 코드 공간이 얼마나 작은 지 놀랄 것입니다.
 
-In Unit 2 you will learn:
+Unit 2에서 학습할 내용:
 
-1. How to use [HOCON configuration](https://getakka.net/articles/concepts/configuration.html#what-is-hocon "Akka.NET HOCON Configurations") to configure your actors via App.config and Web.config;
-1. How to configure your actor's [Dispatcher](https://getakka.net/articles/actors/dispatchers.html) to run on the Windows Forms UI thread, so actors can make operations directly on UI elements without needing to change contexts;
-1. How to handle more sophisticated types of pattern matching using `ReceiveActor`;
-1. How to use the `Scheduler` to send recurring messages to actors;
-1. How to use the [Publish-subscribe (pub-sub) pattern](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) between actors;
-1. How and why to switch actor's behavior at run-time; and
-2. How to `Stash` messages for deferred processing.
+1. App.config 및 Web.config를 통해 액터를 구성하기 위해 [HOCON configuration](https://getakka.net/articles/concepts/configuration.html#what-is-hocon "Akka.NET HOCON Configurations")을 사용하는 방법
+2. 액터의 [Dispatcher](https://getakka.net/articles/actors/dispatchers.html)가 Windows Forms UI 스레드에서 실행되도록 구성하여, 액터가 컨텍스트를 변경할 필요없이 UI 요소에서 직접 작업을 수행 할 수 있도록하는 방법
+3. `ReceiveActor`를 사용하여보다 정교한 유형의 패턴 매칭을 처리하는 방법
+4. `Scheduler`를 사용하여 액터에게 반복 메시지를 보내는 방법
+5.  액터 간 [게시-구독 패턴(Publish-subscribe pattern)](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) 사용 방법
+6.  런타임에 액터의 동작을 전환하는 방법과 이유
+7.  지연된 처리를 위해 메시지를 `보관(Stash)`하는 방법
 
 ## Table of Contents
 
-1. **[Lesson 1: `Config` and Deploying Actors via App.Config](lesson1/README.md)**
-2. **[Lesson 2: Using `ReceiveActor` for Better Message Handling](lesson2/README.md)**
-3. **[Lesson 3: Using the `Scheduler` to Send Recurring Messages](lesson3/README.md)**
-4. **[Lesson 4: Switching Actor Behavior at Run-time with `BecomeStacked` and `UnbecomeStacked`](lesson4/README.md)**
-5. **[Lesson 5: Using a `Stash` to Defer Processing of Messages](lesson5/README.md)**
+1. **[Lesson 1: `Config` 와 App.Config를 통한 액터 배포](lesson1/README.md)**
+2. **[Lesson 2: 더 나은 메시지 처리를 위해 `ReceiveActor` 사용](lesson2/README.md)**
+3. **[Lesson 3: `Scheduler`를 사용하여 반복 메시지 보내기](lesson3/README.md)**
+4. **[Lesson 4: `BecomeStacked` 와 `UnbecomeStacked`를 사용하여 런타임에 액터 동작 전환](lesson4/README.md)**
+5. **[Lesson 5: `Stash`를 사용하여 메시지 처리 지연](lesson5/README.md)**
 
-## Get Started
+## 시작해 봅시다
 
-To get started, [go to the /DoThis/ folder](DoThis/) and open `SystemCharting.sln`.
+시작하려면, [DoThis](DoThis/) 폴더로 이동해서 `ChartApp.csproj` 파일을 여세요.
 
-And then go to [Lesson 1](lesson1/README.md).
+다음으로 [Lesson 1](lesson1/README.md)으로 이동합니다.

@@ -1,8 +1,8 @@
-# Akka.NET Bootcamp - Unit 1: Akka.NET 시작하기
+# Akka.NET Bootcamp - Unit 1: Akka.NET 기초
 
 Unit 1에서는 액터 모델과 Akka.NET이 작동하는 방식의 기본을 배웁니다. 
 
-## 학습 개념
+## 개념 학습
 
 *NIX 시스템에는 파일의 변경 사항 (예 : 테일링 로그 파일)을 모니터링하기 위한 `tail` 명령이 내장되어 있지만 Windows는 그렇지 않습니다. Windows 용 `tail`을 만들면서 기본개념을 학습합니다.
 

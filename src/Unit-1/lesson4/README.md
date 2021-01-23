@@ -1,4 +1,4 @@
-# Akka 시작하기 1-4 : 자식 액터, 액터 계층 구조, 그리고 감시(Supervision)
+# Akka 기초 1-4 : 자식 액터, 액터 계층 구조, 그리고 감시(Supervision)
 이번 레슨은 코드베이스의 기능과 액터 모델이 어떻게 작동하는지 이해하는 데 있어 큰 도움을 줄 것입니다.
 이번 레슨이 지금까지 중 가장 어려운 수업이니, 바로 시작합니다!
 
@@ -690,7 +690,7 @@ protected override SupervisorStrategy SupervisorStrategy()
 ## 수고하셨습니다! 이제 레슨5 차례입니다.
 수고하셨습니다! 레슨4를 무사히 끝냈습니다. 이번 레슨을 통해 우리의 시스템과 당신의 이해에 큰 도약이 있었습니다. 
 
-이제 [Akka 시작하기 1-5 : `ActorSelection`과 함께 주소로 액터 찾기](../lesson5/README.md)을 향해 나아가 봅시다.
+이제 [Akka 기초 1-5 : `ActorSelection`과 함께 주소로 액터 찾기](../lesson5/README.md)을 향해 나아가 봅시다.
 
 ## Supervision FAQ
 ### 자식 액터는 supervisor를 얼마나 기다리나요?

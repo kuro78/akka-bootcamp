@@ -1,4 +1,4 @@
-# Akka 시작하기 1-6 : 액터 라이프사이클(The Actor Lifecycle)
+# Akka 기초 1-6 : 액터 라이프사이클(The Actor Lifecycle)
 이 강의는 액터에 대한 중요한 개념 인 액터 라이프 사이클(the actor life sycle)을 끝으로 "기본 시리즈"를 마무리합니다.
 
 ## Key concepts / background
