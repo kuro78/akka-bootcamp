@@ -11,7 +11,7 @@
   - 어떠한 프로세싱을 한 후에 Write를 하는 액터
 
 ### 액터(actor) 란?
-"액터(actor)"는 실제로 시스템의 인간 참여자를 위한 유사점 일뿐입니다. 그것은 일을하고 의사 소통 할 수있는 록립체(entity), 객체(object)입니다.
+"액터(actor)"는 실제로 시스템의 인간 참여자를 위한 유사점 일뿐입니다. 그것은 일을하고 의사 소통 할 수있는 독립체(entity), 객체(object)입니다.
 
 > 당신이 객체 지향 프로그래밍(OOP)에 익숙하다고 가정하겠습니다. 액터 모델은 OOP(객체 지향 프로그래밍)와 매우 유사합니다. 마치 OOP에서 모든 것이 객체 인 것처럼 액터 모델에서는 ***모든 것이 액터입니다***.
 
@@ -157,7 +157,7 @@ new ConsoleReaderActor(consoleWriterActor)));
 화면이 다음과 같이 나타날 경우, 정상적으로 작동하는 것입니다:
 ![Petabridge Akka.NET Bootcamp Lesson 1.1 Correct Output](Images/example.png)
 
-> **N.B.** Akka.NET 1.0.8 이상에서는, JSON.NET serializer가 Akka.NET (1.5)부터 사용되지 않을 것이라는 deprecated 경고가 나타날 것입니다.기본 Newtonsoft.Json 시리얼 라이저가 [Hyperion](https://github.com/akkadotnet/Hyperion)으로 대체됩니다. 이는 주로 기본 serializer에 종속된 Akka.Persistence or Akka.Remote를 사용하는 Akka.NET 사용자에게 나타나는 경고입니다.
+> **N.B.** Akka.NET 1.0.8 이상에서는, JSON.NET serializer가 Akka.NET (1.5)부터 사용되지 않을 것이라는 deprecated 경고가 나타날 것입니다. 기본 Newtonsoft.Json 시리얼 라이저가 [Hyperion](https://github.com/akkadotnet/Hyperion)으로 대체됩니다. 이는 주로 기본 serializer에 종속된 Akka.Persistence or Akka.Remote를 사용하는 Akka.NET 사용자에게 나타나는 경고입니다.
 
 ### 레슨을 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
