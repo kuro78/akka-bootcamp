@@ -159,7 +159,7 @@ new ConsoleReaderActor(consoleWriterActor)));
 
 > **N.B.** Akka.NET 1.0.8 이상에서는, JSON.NET serializer가 Akka.NET (1.5)부터 사용되지 않을 것이라는 deprecated 경고가 나타날 것입니다. 기본 Newtonsoft.Json 시리얼 라이저가 [Hyperion](https://github.com/akkadotnet/Hyperion)으로 대체됩니다. 이는 주로 기본 serializer에 종속된 Akka.Persistence or Akka.Remote를 사용하는 Akka.NET 사용자에게 나타나는 경고입니다.
 
-### 레슨을 마치고,
+### 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
 ## 수고하셨습니다! 이제 레슨2 차례입니다.

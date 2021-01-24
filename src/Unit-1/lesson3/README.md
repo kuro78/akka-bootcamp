@@ -356,7 +356,7 @@ namespace WinTail
 Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
 ```
 
-### 레슨을 마치고,
+### 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인해봅시다.
 모든 작업이 정상적으로 작동된다면, 출력은 지난번과 같아야 합니다:
 

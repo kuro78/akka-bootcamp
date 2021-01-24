@@ -684,7 +684,7 @@ protected override SupervisorStrategy SupervisorStrategy()
 
 축하합니다! 당신은 .NET을 이용해 `tail`을 포팅했습니다. 
 
-### 레슨을 마치고,
+### 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
 ## 수고하셨습니다! 이제 레슨5 차례입니다.

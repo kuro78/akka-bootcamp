@@ -290,7 +290,7 @@ UI 스레드에서 차트가 올바르게 작동하도록 하려면 `Synchronize
 
 그리고... 끝났습니다!
 
-### 마치고
+### 마치고,
 `ChartApp.csproj`를 빌드하고 실행하면 다음이 표시됩니다:
 
 ![Successful Lesson 1 Output](images/dothis-successful-run.png)

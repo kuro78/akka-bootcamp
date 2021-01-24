@@ -324,7 +324,7 @@ protected override void OnReceive(object message)
 화면이 다음과 같이 나타날 경우, 정상적으로 작동하는 것입니다:
 ![Petabridge Akka.NET Bootcamp Lesson 1.2 Correct Output](Images/working_lesson2.jpg)
 
-### 모든 과정이 끝났을 경우,
+### 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가되었는지 확인해봅시다.
 
 ##  수고하셨습니다! 레슨3 차례입니다.

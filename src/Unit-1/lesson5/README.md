@@ -164,7 +164,6 @@ Props fileValidatorActorProps = Props.Create(() =>
 
 ![Petabridge Akka.NET Bootcamp Actor Selection Working](Images/selection_working.png)
 
-### Hey, wait, go back! What about that `consoleWriterActor` passed to `FileValidatorActor`? Wasn't that unnecessarily coupling actors?
 ### 이봐, 기다려, 돌아가! 'FileValidatorActor'에 전달 된 'consoleWriterActor'는 어때요? 불필요하게 액터를 연결하지 않았나요?
 오! 훌륭합니다!!
 
@@ -192,7 +191,7 @@ public FileValidatorActor(IActorRef consoleWriterActor)
 
 반 직관적으로, 이 패턴은 실제로 느슨한 결합(loose coupling)을 촉진합니다. 특히 이벤트를 메시지로 바꾸는 패턴이 널리 사용되는 경우를 Akka.NET을 통해 많이 볼 수 있습니다.
 
-### 레슨을 마치고,
+### 마치고,
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
 ## 수고하셨습니다! 이제 레슨6 차례입니다.
