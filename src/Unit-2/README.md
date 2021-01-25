@@ -30,7 +30,7 @@ Unit 2에서 학습할 내용:
 
 1. **[Lesson 1: `Config` 와 App.Config를 통한 액터 배포](lesson1/README.md)**
 2. **[Lesson 2: 더 나은 메시지 처리를 위해 `ReceiveActor` 사용](lesson2/README.md)**
-3. **[Lesson 3: `Scheduler`를 사용하여 반복 메시지 보내기](lesson3/README.md)**
+3. **[Lesson 3: `Scheduler`를 사용한 지연 메시지 보내기](lesson3/README.md)**
 4. **[Lesson 4: `BecomeStacked` 와 `UnbecomeStacked`를 사용하여 런타임에 액터 동작 전환](lesson4/README.md)**
 5. **[Lesson 5: `Stash`를 사용하여 메시지 처리 지연](lesson5/README.md)**
 
