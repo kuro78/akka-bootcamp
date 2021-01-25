@@ -324,5 +324,4 @@ private void button1_Click(object sender, EventArgs e)
 ## 수고하셨습니다!
 다시 한 번 수고하셨습니다. 이 레슨를 마치면 Akka.NET의 패턴 매칭에 대해 훨씬더 잘 이해하고 `ReceiveActor`가 `UntypedActor`와 어떻게 다른지 이해해야합니다.
 
-**Let's move onto [Lesson 3 - Using the `Scheduler` to Send Recurring Messages](../lesson3/README.md).**
-이제 [Akka 중급 2-3 : `Scheduler`를 사용하여 반복 메시지 보내기](../lesson3/README.md)을 향해 나아가 봅시다.
+이제 [Akka 중급 2-3 : `Scheduler`를 사용한 지연 메시지 보내기](../lesson3/README.md)을 향해 나아가 봅시다.
