@@ -177,7 +177,7 @@ consoleReaderActor.Tell("start");
 consoleReaderActor.Tell(ConsoleReaderActor.StartCommand);
 ```
 
-`C`onsoleReaderActor`의 `OnReceive` 메서드를 다음과 같이 수정해주세요. 이제 우리는 이제 우리의 커스텀 `InputError` 메세지를 듣고(listening), 에러가 발생하면 적절한 조치를 한다는 점을 주목해주세요.
+`ConsoleReaderActor`의 `OnReceive` 메서드를 다음과 같이 수정해주세요. 이제 우리는 이제 우리의 커스텀 `InputError` 메세지를 듣고(listening), 에러가 발생하면 적절한 조치를 한다는 점을 주목해주세요.
 
 ```csharp
 // in ConsoleReaderActor
