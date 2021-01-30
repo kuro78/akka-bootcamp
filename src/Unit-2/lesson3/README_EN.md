@@ -1,36 +1,36 @@
-# Akka 중급 2-3: `Scheduler`를 사용한 지연 메시지 보내기
-3번째 레슨에 오신 것을 환영합니다!
+# Lesson 2.3: Using the `Scheduler` to Send Messages Later
+Welcome to Lesson 2.3!
 
-얼마나 진행했나요? 이 시점에서 우리는 시스템 메트릭을 그래프로 표시하는 `ChartingActor`와 함께 기본 차트를 설정했습니다. 이 시점에 `ChartingActor`는 실제로 아무것도 그래프로 표시하지 않습니다! 그것을 바꿀 때입니다.
+Where are we? At this point, we have our basic chart set up, along with our `ChartingActor`  which is supposed to be graphing system metrics. Except right now, `ChartingActor` isn't actually graphing anything! It's time to change that.
 
-이 레슨에서는 시스템의 다양한 구성 요소를 연결하여 리소스 모니터 애플리케이션이 실제로 시스템 리소스 소비를 차트로 표시하도록 할 것입니다! **이번 레슨이 Unit 2의 핵심입니다. 커피를 마시며 편안하게 즐기십시오!** 
+In this lesson, we'll be hooking up the various components of our system to make our Resource Monitor application actually chart system resource consumption! **This is a big lesson—it's the core of Unit 2—so get your coffee and get comfortable!**
 
-리소스 모니터링앱이 의도한대로 작동하도록 하려면 그래프 데이터에대한 실제 시스템 [Performance Counters](https://msdn.microsoft.com/en-us/library/system.diagnostics.performancecounter.aspx "PerformanceCounter Class - C#")에 `ChartingActor`를 연결해야합니다. 이는 차트가 정기적으로 업데이트되도록 지속적으로 이루어져야합니다. 
+To make our resource monitoring app work as intended, we need to wire up `ChartingActor` to the actual system [Performance Counters](https://msdn.microsoft.com/en-us/library/system.diagnostics.performancecounter.aspx "PerformanceCounter Class - C#") for the graph data. This needs to happen on an ongoing basis so that our chart regularly updates.
 
-Akka.NET이 제공하는 가장 강력한 기능중 하나는 정기적으로 발생하는 메시지를 포함하여 향후 전송될 메시지를 예약하는 기능입니다. 그리고 이것이 바로 `ChartingActor`가 그래프를 정기적으로 업데이트하는데 필요한 기능입니다. 
+One of the most powerful capabilities Akka.NET exposes is the ability to schedule messages to be sent in the future, including regularly occurring messages. And it turns out, this is exactly the functionality we need to have `ChartingActor` regularly update our graphs.
 
-이 레슨에서는 두 가지 강력한 Akka.NET 개념을 배우게됩니다:
+In this lesson you'll learn two powerful Akka.NET concepts:
 
-1. `스케줄러(Scheduler)`사용 방법, 과
-2. 액터를 이용한 [게시-구독 패턴](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) 구현 방법. 이것은 반응 시스템을 만드는 강력한 기술입니다. 
+1. How to use the `Scheduler`, and
+2. How to implement the [Publish-subscribe (pub-sub) pattern](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) using actors. This is a powerful technique for creating reactive systems.
 
 ## Key Concepts / Background
-액터가 앞으로 뭔가를 하게하려면 어떻게 해야합니까? 그리고 그 액터가 미래에 반복적으로 무언가 하기를 원한다면 어떨까요? 
+How do you get an actor to do something in the future? And what if you want that actor to do something on a recurring basis in the future?
 
-아마도 당신은 액터가 주기적으로 정보를 가져 오거나, 시스템 내의 다른 액터에 대한 상태를 가끔 핑(ping)하기를 원할 수 있습니다. 
+Perhaps you want an actor to periodically fetch information, or to occasionally ping another actor within the system for its status.
 
-Akka.NET은 이러한 작업을 수행하기위한 메커니즘을 제공합니다. 새로운 친한 친구를 만나보세요: `스케줄러(Scheduler)` 입니다. 
+Akka.NET provides a mechanism for doing just this sort of thing. Meet your new best friend: the `Scheduler`.
 
-### `스케줄러(Scheduler)`란?
-`ActorSystem.Scheduler`([문서](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Docs - IScheduler interface"))는 모든 ActorSystem 내의 싱글톤으로, 앞으로 액터에게 메시지를 보낼 수 있도록 스케줄을 설정할 수 있습니다. `스케줄러(Scheduler)`는 일회성 메시지와 반복성 메시지를 모두 보낼 수 있습니다.
+### What is the `Scheduler`?
+The `ActorSystem.Scheduler` ([docs](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Docs - IScheduler interface")) is a singleton within every `ActorSystem` that allows you to schedule messages to be sent to an actor in the future. The `Scheduler` can send both one-off and recurring messages.
 
-### `Scheduler`는 어떻게 사용하나요?
-앞서 언급했듯이, 액터에게 일회성 또는 반복 메시지를 예약 할 수 있습니다. 
+### How do I use the `Scheduler`?
+As we mentioned, you can schedule one-off or recurring messages to an actor.
 
-액터에게 메시지를 보내는 대신 앞으로 발생할 `동작(Action)`을 예약 할 수도 있습니다. 
+You can also schedule an `Action` to occur in the future, instead of sending a message to an actor.
 
-#### `ActorSystem`을 통해`Scheduler`에 액세스 
-`Scheduler`는 다음과 같이`ActorSystem`을 통해 액세스해야합니다:
+#### Access the `Scheduler` via the `ActorSystem`
+`Scheduler` must be accessed through the `ActorSystem`, like so:
 
 ```csharp
 // inside Main.cs we have direct handle to the ActorSystem
@@ -45,8 +45,8 @@ Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromMinutes(30),
 								             someMessage, ActorRefs.Nobody);
 ```
 
-#### `ScheduleTellOnce ()`를 사용하여 일회성 메시지 예약 
-액터 중 하나에서 30 분 후에 RSS 피드에서 최신 콘텐츠를 가져 오도록하고 싶다고 가정해 보겠습니다. 이를 위해 [`IScheduler.ScheduleTellOnce()`](http://api.getakka.net/docs/stable/html/190E4EB.htm "Akka.NET Stable API Docs - IScheduler.ScheduleTellOnce method")를 사용할 수 있습니다:
+#### Schedule one-off messages with `ScheduleTellOnce()`
+Let's say we want to have one of our actors fetch the latest content from an RSS feed 30 minutes in the future. We can use [`IScheduler.ScheduleTellOnce()`](http://api.getakka.net/docs/stable/html/190E4EB.htm "Akka.NET Stable API Docs - IScheduler.ScheduleTellOnce method") to do that:
 
 ```csharp
 var system = ActorSystem.Create("MySystem");
@@ -59,12 +59,12 @@ system
              someActor, someMessage, ActorRefs.Nobody);
 ```
 
-짜잔! `someActor`는 30분 후에 `someMessage`를 수신합니다. 
+Voila! `someActor` will receive `someMessage` in 30 minutes time.
 
-#### `ScheduleTellRepeatedly()`를 사용하여 반복 메시지 예약 
-이제, **이 메시지가 *30분마다* 한 번 배달되도록 예약하려면 어떻게해야합니까?** 
+#### Schedule recurring messages with `ScheduleTellRepeatedly()`
+Now, **what if we want to schedule this message to be delivered once *every 30 minutes*?**
 
-이를 위해 다음 [`IScheduler.ScheduleTellRepeatedly()`](http://api.getakka.net/docs/stable/html/A909C289.htm "Akka.NET Stable API Docs - IScheduler.ScheduleTellRepeatedly")를 오버로드해 사용할 수 있습니다. 
+For this we can use the following [`IScheduler.ScheduleTellRepeatedly()`](http://api.getakka.net/docs/stable/html/A909C289.htm "Akka.NET Stable API Docs - IScheduler.ScheduleTellRepeatedly") overload.
 
 ```csharp
 var system = ActorSystem.Create("MySystem");
@@ -78,12 +78,12 @@ system
              someActor, someMessage, ActorRefs.Nobody);
 ```
 
-그게 다입니다!
+That's it!
 
-### 예약 된 메시지를 취소하려면 어떻게 하나요? 
-예약되거나 반복되는 메시지를 취소해야하는 경우 어떻게됩니까? [`ICancelable`](http://api.getakka.net/docs/stable/html/3FA8058E.htm "Akka.NET Stable API Docs - ICancelable interface")을 사용하여 생성할 수있는 [`Cancelable`](http://api.getakka.net/docs/stable/html/8869EC52.htm) 인스턴스를 사용합니다. 
+### How do I cancel a scheduled message?
+What happens if we need to cancel a scheduled or recurring message? We use a [`ICancelable`](http://api.getakka.net/docs/stable/html/3FA8058E.htm "Akka.NET Stable API Docs - ICancelable interface"), which we can create using a [`Cancelable`](http://api.getakka.net/docs/stable/html/8869EC52.htm) instance.
 
-먼저 메시지를 취소 할 수 있도록 예약해야합니다. 메시지가 취소 가능하면, `ICancelable`에 대한 핸들에서 `Cancel()`을 반드시 호출해야 합니다. 그렇지 않으면 메세지 취소가 전달되지 않습니다. 예를 들어: 
+First, the message must be scheduled so that it can be cancelled. If a message is cancelable, we then just have to call `Cancel()` on our handle to the `ICancelable` and it will not be delivered. For example:
 
 ```csharp
 var system = ActorSystem.Create("MySystem");
@@ -102,8 +102,8 @@ system
 cancellation.Cancel();
 ```
 
-#### 대안: `ScheduleTellRepeatedlyCancelable`을 사용하여 `ICancelable` 작업 가져 오기
-Akka.NET v1.0에서 소개한 새로운 `IScheduler` 메서드 중 하나는 [`ScheduleTellRepeatedlyCancelable` 확장 메서드](http://api.getakka.net/docs/stable/html/9B66375D.htm "Akka.NET API Docs - SchedulerExtensions.ScheduleTellRepeatedlyCancelable extension method")입니다. 이 확장 메서드는 반복 메시지에 대한 `ICancelable` 인스턴스를 생성하는 프로세스를 나타내고, 간단히 `ICancelable`을 반환합니다. 
+####Alternative: get an `ICancelable` task using `ScheduleTellRepeatedlyCancelable`
+One of the new `IScheduler` methods we introduced in Akka.NET v1.0 is the [`ScheduleTellRepeatedlyCancelable` extension method](http://api.getakka.net/docs/stable/html/9B66375D.htm "Akka.NET API Docs - SchedulerExtensions.ScheduleTellRepeatedlyCancelable extension method").This extension method inlines the process of creating an `ICancelable` instance for your recurring messages and simply returns an `ICancelable` for you.
 
 ```csharp
 var system = ActorSystem.Create("MySystem");
@@ -122,31 +122,31 @@ var cancellation =  system
 // here we actually cancel the message and prevent it from being delivered
 cancellation.Cancel();
 ```
-이것은 이전 예제에 대한 좀더 간결한 대안이며, 이 부트캠프에서는 사용하지 않더라도 앞으로 사용하는 것이 좋습니다. 
+This is a more concise alternative to the previous example, and we recommend using it going forward even though we won't be using it in this bootcamp.
 
-### 예약 된 메시지의 타이밍은 얼마나 정확한가요? 
-***예약 된 메시지는 우리가 접한 모든 사용 사례에 대해 충분히 정확합니다.*** 
+### How precise is the timing of scheduled messages?
+***Scheduled messages are more than precise enough for all the use cases we've come across.***
 
-그렇긴 하지만, 우리가 알고 있는 부정확한 상황이 두 가지가 있습니다:
+That said, there are two situations of imprecision that we're aware of:
 
-1. 예약 된 메시지는 CLR 스레드풀에 예약되고 내부적으로 `Task.Delay`를 사용합니다. CLR 스레드풀에 높은로드가있는 경우 작업이 계획보다 조금 늦게 완료 될 수 있습니다. 작업이 예상 한 밀리 초에 정확히 실행된다는 보장은 없습니다. 
-2. 스케줄링 요구 사항이 15밀리초 미만의 정밀도를 요구하는 경우 `스케줄러`가 충분히 정확하지 않습니다. Windows, OSX 또는 Linux와 같은 일반적인 운영 체제도 마찬가지입니다. 이는 ~ 15ms가 Windows 및 기타 일반 OS가 시스템 클럭을 업데이트하는 간격("클럭 해상도")이기 때문에, 이러한 OS는 자체 시스템 클럭보다 정확한 타이밍을 지원할 수 없기 때문입니다. 
+1. Scheduled messages are scheduled onto the CLR threadpool and use `Task.Delay` under the hood. If there is a high load on the CLR threadpool, the task might finish a little later than planned. There is no guarantee that the task will execute at EXACTLY the millisecond you expect.
+2. If your scheduling requirements demand precision below 15 milliseconds then the `Scheduler` is not precise enough for you. Nor is any typical operating system such as Windows, OSX, or Linux. This is because ~15ms is the interval in which Windows and other general OSes update their system clock ("clock resolution"), so these OSs can't support any timing more precise than their own system clocks.
 
-### 'Schedule'과 'ScheduleOnce'의 다양한 오버로드는 무엇이 있나요? 
-다음은 메시지 예약에 사용할 수있는 모든 오버로드 옵션입니다. 
+### What are the various overloads of `Schedule` and `ScheduleOnce`?
+Here are all the overload options you have for scheduling a message.
 
-#### `ScheduleTellRepeatedly`의 오버로드
-반복 메시지를 예약하기 위해 수행 할 수있는 다양한 API 호출이 있습니다. 
+#### Overloads of `ScheduleTellRepeatedly`
+These are the various API calls you can make to schedule recurring messages.
 
-[`IScheduler` API 문서를 참조하세요](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Documentation - IScheduler Interface").
+[Refer to the `IScheduler` API documentation](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Documentation - IScheduler Interface").
 
-#### `ScheduleTellOnce`의 오버로드 
-일회성 메시지를 예약하기 위해 만들 수있는 다양한 API 호출이 있습니다.
+#### Overloads of `ScheduleTellOnce`
+These are the various API calls you can make to schedule one-off messages.
 
-[`IScheduler` API 문서를 참조하세요](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Documentation - IScheduler Interface").
+[Refer to the `IScheduler` API documentation](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Documentation - IScheduler Interface").
 
-### Akka.NET 액터로 Pub / Sub를 어떻게 수행하나요?
-사실 아주 간단합니다. 많은 사람들은 이것이 매우 복잡할 것으로 기대하고 더 많은 코드가 관련되지 않았는지 의심합니다. Akka.NET 액터를 사용하는 pub / sub에 대한 마법은 없습니다. 말 그대로 이렇게 간단 할 수 있습니다:
+### How do I do Pub/Sub with Akka.NET Actors?
+It's actually very simple. Many people expect this to be very complicated and are suspicious that there isn't more code involved. Rest assured, there's nothing magic about pub/sub with Akka.NET actors. It can literally be as simple as this:
 
 ```csharp
 public class PubActor : ReceiveActor
@@ -180,16 +180,16 @@ public class PubActor : ReceiveActor
 }
 ```
 
-Pub/sub는 Akka.NET에서 구현하기에 매우 간단한 것으로, 이에 잘 맞는 시나리오가 있을때 정기적으로 사용할 수 있는 패턴입니다.
+Pub/sub is trivial to implement in Akka.NET and it's a pattern you can feel comfortable using regularly when you have scenarios that align well with it.
 
-이제 'Scheduler'가 작동하는 방식에 익숙해 졌으므로, 이를 사용하여 차트 UI를 반응형으로 만들 수 있습니다. 
+Now that you're familiar with how the `Scheduler` works, lets put it to use and make our charting UI reactive!
 
-## 실습
-**주의:** 이번 실습에서 Unit 2의 모든 작업 중 90 %가 이루어집니다. `PerformanceCounter`데이터를 정기적으로 그래프로 표시하기 위해 `ChartingActor`와 pub/sub 관계 설정을 담당하는 몇 명의 새로운 액터를 추가 할 것입니다.
+## Exercise
+**HEADS UP:** This section is where 90% of the work happens in all of Unit 2. We're going to add a few new actors who are responsible for setting up pub/sub relationships with the `ChartingActor` in order to graph `PerformanceCounter` data at regular intervals.
 
-### 1단계: "시리즈 추가" 버튼을 삭제하고 레슨 2에서 만든 핸들러를 클릭하세요. 
+### Step 1 - Delete the "Add Series" Button and Click Handler from Lesson 2
 
-그것이 필요하지 않을 것입니다.  `Main.cs`의 **[Design]** 보기에서 **"시리즈 추가" 버튼을 삭제**하고, 클릭 핸들러를 제거합니다:
+We're not going to need it. **Delete the "Add Series" button** from the **[Design]** view of `Main.cs` and remove the click handler:
 
 ```csharp
 // Main.cs - Main
@@ -202,29 +202,29 @@ private void button1_Click(object sender, EventArgs e)
 }
 ```
 
-### 2단계: `Main.cs`에 3 개의 버튼 추가 
+### Step 2 - Add 3 New Buttons to `Main.cs`
 
-세 개의 버튼과 각각에 대한 클릭 핸들러를 추가 할 것입니다. 
+We're going to add three new buttons and click handlers for each:
 
 * **CPU (ON)**
 * **MEMORY (OFF)**
 * **DISK (OFF)**
 
-Visual Studio의 `Main.cs`에 대한 **[디자인]**뷰는 다음과 같아야합니다:
+Your **[Design]** view in Visual Studio for `Main.cs` should look like this:
 
 ![Add 3 buttons for tracking different performance counter metrics](images/add-3-buttons.png)
 
-나중에 참조해야하므로 각 버튼에 설명이 포함 된 이름을 지정했는지 확인하세요. Visual Studio의 **속성** 창을 사용하여 각각에 대한 설명이 포함 된 이름을 설정할 수 있습니다:
+Make sure that you given a descriptive name to each of these buttons, because we're going to need to refer to them later. You can set a descriptive name for each using the **Properties** window in Visual Studio:
 
 ![Set a descriptive name for each button](images/button-properties-window.png)
 
-참조 할 때 각 버튼에 사용할 이름은 다음과 같습니다: 
+Here are the names we'll be using for each button when we refer to them later:
 
 * **CPU (ON)** - `btnCpu`
 * **MEMORY (OFF)** - `btnMemory`
 * **DISK (OFF)** - `btnDisk`
 
-버튼의 이름을 변경한 후 **[디자인]**뷰에서 *버튼을 두 번 클릭하여 각 버튼에 대한 클릭 핸들러를 추가합니다.* 
+Once you've renamed your buttons, *add click handlers for each button by double-clicking on the button* in the **[Design]** view.
 
 ```csharp
 // Main.cs - Main
@@ -244,10 +244,10 @@ private void btnDisk_Click(object sender, EventArgs e)
 }
 ```
 
-이 핸들러는 나중에 채울 것입니다. 
+We'll fill these handlers in later.
 
-### 3단계: 새 메시지 유형 추가
-잠시 후에 프로젝트에 몇 가지 새로운 액터를 추가할 것입니다. 그 전에 프로젝트의 `/Actors` 폴더에 새 파일을 만들고 몇 가지 새로운 메시지 유형을 정의해 보겠습니다:
+### Step 3 - Add Some New Message Types
+We're going to add a few new actors to our project in a moment, but before we do that let's create a new file inside the `/Actors` folder in our project and define some new message types:
 
 ```csharp
 // Actors/ChartingMessages.cs
@@ -330,13 +330,13 @@ namespace ChartApp.Actors
 }
 ```
 
-이제 이러한 메시지 정의에 의존하는 액터를 추가 할 수 있습니다. 
+Now we can start adding the actors who depend on these message definitions.
 
-### 4단계: `PerformanceCounterActor` 만들기
+### Step 4 - Create the `PerformanceCounterActor`
 
-`PerformanceCounterActor`는 Pub/Sub 와 `Scheduler`를 사용하여 `PerformanceCounter` 값을 `ChartingActor`에 게시 할 액터입니다. 
+The `PerformanceCounterActor` is the actor who's going to publish `PerformanceCounter` values to the `ChartingActor` using Pub/Sub and the `Scheduler`.
 
-`/Actors` 폴더에 `PerformanceCounterActor.cs`라는 새 파일을 만들고 다음을 입력합니다:
+Create a new file in the `/Actors` folder called `PerformanceCounterActor.cs` and type the following:
 
 ```csharp
 // Actors/PerformanceCounterActor.cs
@@ -433,29 +433,29 @@ namespace ChartApp.Actors
 
 ```
 
-  다음 단계로 넘어가기 전에, 방금한 일에 대해 이야기해 봅시다 ...* 
+*Before we move onto the next step, let's talk about what you just did...*
 
-#### 신뢰성을 위한 함수형 프로그래밍 
-`PerformanceCounterActor`의 생성자에서 `PerformanceCounter`가 아닌 `Func<PerformanceCounter>`를 사용하는 방법을 알고 계셨습니까? 그렇지 않은 경우 돌아가서 지금보십시오. 무엇을 제공합니까? 
+#### Functional Programming for Reliability
+Did you notice how, in the constructor of `PerformanceCounterActor`, we took a `Func<PerformanceCounter>` and NOT a `PerformanceCounter`? If you didn't, go back and look now. What gives?
 
-이것은 함수형 프로그래밍에서 차용한 기술입니다. 액터의 생성자에 `IDisposable` 객체를 주입해야 할 때마다 사용합니다. 왜냐? 
+This is a technique borrowed from functional programming. We use it whenever we have to inject an `IDisposable` object into the constructor of an actor. Why?
 
-글쎄요, 우리는 `IDisposable` 객체를 매개 변수로 취하는 액터를 가지고 있습니다. 그래서 우리는 이 객체가 실제로 어떤 시점에서 `Disposed`가 되어 더이상 사용할 수 없게 될 것이라고 가정 할 것입니다. 
+Well, we've got an actor that takes an `IDisposable` object as a parameter. So we're going to assume that this object will actually become `Disposed` at some point and will no longer be available.
 
-`PerformanceCounterActor`를 다시 시작해야할 필요가 있다면 어떻게 합니까? 
+What happens when the `PerformanceCounterActor` needs to restart?
 
-**`PerformanceCounterActor`가 재시작하려 할 때마다 참조 유형을 포함하는 원래 생성자 인수를 재사용합니다**. 이미 `Disposed`된 `PerfomaceCounter`에 대해 같은 참조를 다시 사용하려면 부모 액터가 그 액터를 완전히 kill하기로 결정할 때까지 반복적으로 오류(crash)가 납니다.
+**Every time the `PerformanceCounterActor` attempts to restart it will re-use its original constructor arguments, which includes reference types**. If we re-use the same reference to the now-`Disposed` `PerformanceCounter`, the actor will crash repeatedly. Until its parent decides to just kill it altogether.
 
-더 좋은 방법은 `PerformanceCounterActor`가 `PerformanceCounter`의 새 인스턴스를 가져 오는데 사용할 수있는 팩토리 함수를 전달하는 것입니다. 이것이 우리가 생성자에 `Func<PerformanceCounter>`를 사용하는 이유입니다. 액터의 `PreStart()` 라이프 사이클 메서드 안에서 호출됩니다. 
+A better technique is to pass a factory function that `PerformanceCounterActor` can use to get a fresh instance of its `PerformanceCounter`. That's why we use a `Func<PerformanceCounter>` in the constructor, which gets invoked during the actor's `PreStart()` lifecycle method.
 
 ```csharp
 // create a new instance of the performance counter from factory that was passed in
 _counter = _performanceCounterGenerator();
 ```
 
-`PerformanceCounter`는 `IDisposable`이기 때문에, 액터의 `PostStop` 라이프 사이클 메소드 내에서 `PerformanceCounter` 인스턴스도 정리해야합니다. 
+Because our `PerformanceCounter` is `IDisposable`, we also need to clean up the `PerformanceCounter` instance inside the `PostStop` lifecycle method of the actor.
 
-이미 액터가 재시작할 때 카운터의 새로운 인스턴스를 얻을 수 있다는 것을 알고 있으므로, 리소스 낭비를 방지하고 싶습니다. 이것이 우리가 하는 방법입니다:
+We already know that we're going to get a fresh instance of that counter when the actor restarts, so we want to prevent resource leaks. This is how we do that:
 
 ```csharp
 // Actors/PerformanceCounterActor.cs
@@ -479,8 +479,8 @@ protected override void PostStop()
 }
 ```
 
-#### 손쉽게 Pub/Sub 만들기
-`PerformanceCounterActor`는 `OnReceive` 메소드 내부에 `SubscribeCounter` 와 `UnsubscribeCounter` 메시지에 대한 핸들러를 통해 pub / sub가 내장되어 있습니다. 
+#### Pub / Sub Made Easy
+The `PerformanceCounterActor` has pub / sub built into it by way of its handlers for `SubscribeCounter` and `UnsubscribeCounter` messages inside its `OnReceive` method:
 
 ```csharp
 // Actors/PerformanceCounterActor.cs
@@ -500,12 +500,12 @@ else if (message is UnsubscribeCounter)
 }
 ```
 
-이 강의에서 `PerformanceCounterActor`에는 구독자가 한 명 (`Main.cs` 내부의 `ChartingActor`) 뿐이지만 약간의 재구성을 통해 이러한 액터가 여러 수신자에게 `PerformanceCounter` 데이터를 게시하도록 할 수 있습니다. 나중에 시도해 볼 만한 자습거리 이지요? ;) 
+In this lesson, `PerformanceCounterActor` only has one subscriber (`ChartingActor`, from inside `Main.cs`) but with a little re-architecting you could have these actors publishing their `PerformanceCounter` data to multiple recipients. Maybe that's a do-it-yourself exercise you can try later? ;)
 
-#### `PerformanceCounter` 데이터 게시를 어떻게 예약 했나요?
-`PreStart` 라이프 사이클 메서드 내에서 `Context` 객체를 사용하여 `Scheduler`에 액세스 한 다음 `PerformanceCounterActor`가 250 밀리초 마다 한 번씩 `GatherMetrics` 메서드를 전송하도록 했습니다. 
+#### How did we schedule publishing of `PerformanceCounter` data?
+Inside the `PreStart` lifecycle method, we used the `Context` object to get access to the `Scheduler`, and then we had `PerformanceCounterActor` send itself a `GatherMetrics` method once every 250 milliseconds.
 
-이로 인해 `PerformanceCounterActor`는 250ms 마다 데이터를 가져와 `ChartingActor`에 게시하여 프레임 속도가 4FPS 인 라이브 그래프를 제공합니다. 
+This causes `PerformanceCounterActor` to fetch data every 250ms and publish it to `ChartingActor`, giving us a live graph with a frame rate of 4 FPS.
 
 ```csharp
 // Actors/PerformanceCounterActor.cs
@@ -519,29 +519,29 @@ protected override void PreStart()
 }
 ```
 
-`PerformanceCounterActor`의 `PostStop` 메소드 내에서 이 반복 메시지를 취소하기 위해 생성한 `ICancelable`을 호출합니다. 
+Notice that inside the `PerformanceCounterActor`'s `PostStop` method, we invoke the `ICancelable` we created to cancel this recurring message:
 
 ```csharp
  // terminate the scheduled task
 _cancelPublishing.Cancel();
 ```
 
-리소스 누수를 제거하고 `IScheduler`가 죽거나 재시작된 액터에게 되풀이 메시지를 보내는 것을 방지하기 위해 `PerformanceCounter`를 `Dispose`하는 것과 같은 이유로 이 작업을 수행합니다. 
+We do this for the same reason we `Dispose` the `PerformanceCounter` - to eliminate resource leaks and to prevent the `IScheduler` from sending recurring messages to dead or restarted actors.
 
-### 5단계: `PerformanceCounterCoordinatorActor` 만들기 
+### Step 5 - Create the `PerformanceCounterCoordinatorActor`
 
-`PerformanceCounterCoordinatorActor`는 `ChartingActor`와 모든 `PerformanceCounterActor` 인스턴스 간의 인터페이스입니다. 
+The `PerformanceCounterCoordinatorActor` is the interface between the `ChartingActor` and all of the `PerformanceCounterActor` instances.
 
-다음과 같은 작업이 있습니다:
+It has the following jobs:
 
-* 사용자가 요청한 모든 `PerformanceCounterActor` 인스턴스를 느리게 생성합니다. 
-* 카운터 생성을 위한 팩토리 메서드(`Func<PerformanceCounter>`)와 함께 `PerformanceCounterActor`를 제공합니다. 
-* `ChartingActor`에 대한 모든 카운터 구독 관리 와
-* `ChartingActor`에게 각각의 개별 카운터 측정 항목을 렌더링하는 방법(`PerformanceCounter`에 해당하는 각 `Series`에 사용할 색상 및 플롯 유형)을 알려줍니다. 
+* Lazily create all `PerformanceCounterActor` instances that are requested by the end-user;
+* Provide the `PerformanceCounterActor` with a factory method (`Func<PerformanceCounter>`) for creating its counters;
+* Manage all counter subscriptions for the `ChartingActor`; and
+* Tell the `ChartingActor` how to render each of the individual counter metrics (which colors and plot types to use for each `Series` that corresponds with a `PerformanceCounter`.)
 
-복잡하게 들리죠? 아마도, 코드 양이 얼마나 작은지 보면 놀랄 것입니다! 
+Sounds complicated, right? Well, you'll be surprised when you see how small the code footprint is!
 
-`/Actors` 폴더에 `PerformanceCounterCoordinatorActor.cs`라는 새 파일을 만들고 다음을 입력합니다:
+Create a new file in the `/Actors` folder called `PerformanceCounterCoordinatorActor.cs` and type the following:
 
 ```csharp
 // Actors/PerformanceCoordinatorActor.cs
@@ -688,16 +688,16 @@ namespace ChartApp.Actors
     }
 }
 ```
-좋아요, 거의 다 왔습니다. 단 하나의 액터 만 남았습니다! 
+Okay, we're almost there. Just one more actor to go!
 
-### 6단계: `ButtonToggleActor` 만들기
-2단계에서 만든 버튼들을 관리할 액터을 추가하지 않고 그냥 발사하게 놔둘 거라고는 생각지 않으셨죠? ;)
+### Step 6 - Create the `ButtonToggleActor`
+You didn't think we were going to let you just fire off those buttons you created in Step 2 without adding some actors to manage them, did you? ;)
 
-이 단계에서는 `ChartingActor`처럼 UI 스레드에서 실행될 새로운 유형의 액터를 추가할 것입니다. 
+In this step, we're going to add a new type of actor that will run on the UI thread just like the `ChartingActor`.
 
-`ButtonToggleActor`의 역할은 관리하는 `Button`의 클릭 이벤트를 `PerformanceCounterCoordinatorActor`에 대한 메시지로 바꾸는 것입니다. 또한 `ButtonToggleActor`는 `Button`의 시각적 상태가 `PerformanceCounterCoordinatorActor`가 관리하는 구독 상태를 정확하게 반영하는지 확인합니다 (예 : ON/OFF).
+The job of the `ButtonToggleActor` is to turn click events on the `Button` it manages into messages for the `PerformanceCounterCoordinatorActor`. The `ButtonToggleActor` also makes sure that the visual state of the `Button` accurately reflects the state of the subscription managed by the `PerformanceCounterCoordinatorActor` (e.g. ON/OFF).
 
-좋습니다. `/Actors` 폴더에 `ButtonToggleActor.cs`라는 새 파일을 만들고 다음을 입력합니다:
+Okay, create a new file in the `/Actors` folder called `ButtonToggleActor.cs` and type the following:
 
 ```csharp
 // Actors/ButtonToggleActor.cs
@@ -778,12 +778,12 @@ namespace ChartApp.Actors
 }
 ```
 
-### 7단계: `ChartingActor` 업데이트
-마지막 구간입니다! 거의 다 왔어요.
+### Step 7 - Update the `ChartingActor`
+Home stretch! We're almost there.
 
-3단계에서 정의한 모든 새 메시지 유형을 `ChartingActor`에 통합해야 합니다. 또한 `차트`를 지속적으로 *실시간 업데이트* 할 예정이므로 `차트`를 렌더링하는 방식을 약간 변경해야 합니다. 
+We need to integrate all of the new message types we defined in Step 3 into the `ChartingActor`. We also need to make some changes to the way we render the `Chart` since we're going to be making *live updates* to it continuously.
 
-시작하려면 `ChartingActor` 클래스 맨 위에 다음 코드를 추가하십시오:
+To start, add this code at the very top of the `ChartingActor` class:
 
 ```csharp
 // Actors/ChartingActor.cs
@@ -799,7 +799,7 @@ public const int MaxPoints = 250;
 private int xPosCounter = 0;
 ```
 
-다음으로, `ChartingActor`가 사용할 새 메시지 유형을 추가합니다. 이것을 `Actors/ChartingActor.cs`의 `Messages` 영역에 추가합니다:
+Next, add a new message type that the `ChartingActor` is going to use. Add this inside the `Messages` region of `Actors/ChartingActor.cs`:
 
 ```csharp
 // Actors/ChartingActor.cs - inside the Messages region
@@ -818,7 +818,7 @@ public class RemoveSeries
 }
 ```
 
-`ChartingActor` 클래스의 맨 아래에 다음 메서드를 추가합니다(세부 사항에 대해서는 걱정하지 마십시오. 액터와 직접 관련이 없는 UI 관리 코드를 추가합니다):
+Add the following method to the bottom of the `ChartingActor` class (don't worry about the specifics, it's adding UI management code that isn't directly related to actors):
 
 ```csharp
 // Actors/ChartingActor.cs
@@ -843,11 +843,11 @@ private void SetChartBoundaries()
 }
 ```
 
-> **NOTE**: `SetChartBoundaries()`메소드는 시간이 지남에 따라 차트의 시작 부분에서 오래된 점을 제거 할 때 차트의 경계 영역이 업데이트되도록하는 데 사용됩니다. 
+> **NOTE**: the `SetChartBoundaries()` method is used to make sure that the boundary area of our chart gets updated as we remove old points from the beginning of the chart as time elapses.
 
-다음으로, 새로운 `SetChartBoundaries()`메서드를 사용하도록 모든 메시지 핸들러를 재정의 할 것입니다. 
+Next, we're going to redefine all of our message handlers to use the new `SetChartBoundaries()` method.
 
-**`Individual Message Type Handlers`영역** 내의 모든 항목을 삭제 한 후 **다음으로 교체합니다**: 
+**Delete everything inside the previous `Individual Message Type Handlers` region**, and then **replace it with the following**:
 
 ```csharp
 // Actors/ChartingActor.cs - inside the Individual Message Type Handlers region
@@ -919,7 +919,7 @@ private void HandleMetrics(Metric metric)
 }
 ```
 
-마지막으로 다음 `Receive<T>` 핸들러를 `ChartingActor`의 생성자에 추가합니다:
+And finally, add these `Receive<T>` handlers to the constructor for `ChartingActor`:
 
 ```csharp
 // Actors/ChartingActor.cs - add these below the original Receive<T>
@@ -928,10 +928,10 @@ Receive<RemoveSeries>(removeSeries => HandleRemoveSeries(removeSeries));
 Receive<Metric>(metric => HandleMetrics(metric));
 ```
 
-### 8단계: `Main.cs`의 `Main_Load` 핸들러 교체 
-이제 실시간으로 플로팅하려는 실제 데이터가 있으므로, `ChartActor`에 가짜 데이터를 제공한 원래 `Main_Load` 이벤트 핸들러를 라이브 차트 작성을 위한 실제 데이터로 교체해야 합니다. 
+### Step 8 - Replace the `Main_Load` Handler in `Main.cs`
+Now that we have real data we want to plot in real-time, we need to replace the original `Main_Load` event handler, which supplied fake data to our `ChartActor` with a real one that sets us up for live charting.
 
-`Main.cs` 내부의 `Main` 클래스 상단에 다음 선언을 추가합니다:
+Add the following declarations to the top of the `Main` class inside `Main.cs`:
 
 ```csharp
 // Main.cs - at top of Main class
@@ -940,7 +940,7 @@ private Dictionary<CounterType, IActorRef> _toggleActors = new Dictionary<Counte
     IActorRef>();
 ```
 
-다음으로, `Init` 영역의 `Main_Load` 이벤트 핸들러를 다음과 일치하도록 변경합니다:
+Then, replace the `Main_Load` event handler in the `Init` region so that it matches this:
 
 ```csharp
 // Main.cs - replace Main_Load event handler in the Init region
@@ -976,19 +976,19 @@ private void Main_Load(object sender, EventArgs e)
 }
 ```
 
-#### 잠깐만요, `WithDispatcher`? 이 말도 안되는 소리는 뭔가요! 
-`Props`에는 액터 배포를 프로그래밍 방식으로 구성할 수있는 유창한 인터페이스가 내장되어 있습니다. 이 인스턴스에서는 `Props.WithDispatcher` 메서드를 사용하여 각 `ButtonToggleActor` 인스턴스가 UI 스레드에서 실행되도록 보장합니다.
+#### Wait a minute, what's this `WithDispatcher` nonsense?!
+`Props` has a built-in fluent interface which allows you to configure your actor deployments programmatically, and in this instance we decided to use the `Props.WithDispatcher` method to guarantee that each of the `ButtonToggleActor` instances run on the UI thread.
 
-레슨 1과 같이 HOCON 구성을 통해 액터에 대한 `Dispatcher`도 구성할 수 있습니다. 그렇다면, HOCON에 'Dispatcher'가 설정되어 있는 액터와  'Props'의 인터페이스를 통해 프로그래밍 방식으로 선언한 액터 가 있다면, 어떤 액터가 이길까요?
+As we saw in Lesson 2.1, you can also configure the `Dispatcher` for an actor via the HOCON config. So if an actor has a `Dispatcher` set in HOCON, *and* one declared programmatically via the `Props` fluent interface, which wins?
 
-*충돌의 경우 `Config`가 이기고 `Props`가 집니다.* `Props` 인터페이스에 의해 선언된 모든 충돌 설정은 항상 구성에 선언된 내용으로 재정의됩니다. 
+*In case of a conflict, `Config` wins and `Props` loses .* Any conflicting settings declared by the `Props` fluent interface will always be overriden by what was declared in configuration.
 
-### 9단계: 버튼 핸들러가 해당 `ButtonToggleActor`에 `Toggle` 메시지를 보내도록 지정 
-**마지막 단계 입니다.** 함께 해주셔서 감사합니다. :)
+### Step 9 - Have Button Handlers Send `Toggle` Messages to Corresponding `ButtonToggleActor`
+**THE LAST STEP.** We promise :) Thanks for hanging in there.
 
-마지막으로 3단계에서 만든 버튼 핸들러를 연결해야 합니다. 
+Finally, we need to wire up the button handlers we created in Step 3.
 
-`Main.cs`에서 버튼 핸들러를 연결합니다. 다음과 같이 표시되어야 합니다:
+Wire up your button handlers in `Main.cs`. They should look like this:
 
 ```csharp
 // Main.cs - wiring up the button handlers added in step 3
@@ -1008,23 +1008,30 @@ private void btnDisk_Click(object sender, EventArgs e)
 }
 ```
 
-### 마치고,
-`SystemCharting.sln`을 빌드하고 실행하면 다음이 표시됩니다:
+### Once you're done
+Build and run `SystemCharting.sln` and you should see the following:
 
 ![Successful Lesson 3 Output (animated gif)](images/dothis-successful-run3.gif)
-> NOTE: eBook / .ePub를 사용하여 따라하는 경우 애니메이션이 표시되지 않습니다. [여기를 눌러 확인하세요.](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson3/images/dothis-successful-run3.gif)
+> NOTE: for those of you following along in the eBook, this is an animated GIF of the live charting function working. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson3/images/dothis-successful-run3.gif).
 
-작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
+Compare your code to the code in the [/Completed/ folder](Completed/) to compare your final output to what the instructors produced.
 
-## 수고하셨습니다!
-*와우*. *정말 많은* 코드였습니다. 잘하셨습니다. 고마워요! 이제 액터로 구현된 완전히 작동하는 리소스 모니터앱이 있습니다. 
+## Great job!
+*Wow*. That was *a lot* of code. Great job and thanks for sticking it out! We now have a fully functioning Resource Monitor app, implemented with actors.
 
-다른 모든 강의는 이 강의를 기반으로 진행합니다. 계속하기 전에 코드가 [Completed 폴더](Completed/)의 출력과 일치하는지 확인하세요. 
+Every other lesson builds on this one, so before continuing, please make sure your code matches the output of the [/Completed/ folder](Completed/).
 
-이 지점에서. `Scheduler`가 작동하는 방식과 Pub-sub와 같은 패턴과 함께 사용하여 비교적 작은 코드양을 가진 액터로 매우 반응적인 시스템을 만드는 방법을 이해해야 합니다. 
+At this point. you should understand how the `Scheduler` works and how you can use it alongside patterns like Pub-sub to make very reactive systems with actors that have a comparatively small code footprint.
 
-작업 시스템에 대한 개괄적인 개요는 다음과 같습니다:
+Here is a high-level overview of our working system at this point:
 
 ![Akka.NET Bootcamp Unit 2 System Overview](images/system_overview_2_3.png)
 
-**이제 [Akka 중급 2-4 : `BecomeStacked` 와 `UnbecomeStacked`를 사용하여 런타임에 액터 동작 전환](../lesson4/README.md)으로 넘어갑시다.**
+**Let's move onto [Lesson 4 - Switching Actor Behavior at Run-time with `Become` and `Unbecome`](../lesson4/README.md).**
+
+## Any questions?
+
+Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
+
+### Problems with the code?
+If there is a problem with the code running, or something else that needs to be fixed in this lesson, please [create an issue](https://github.com/petabridge/akka-bootcamp/issues) and we'll get right on it. This will benefit everyone going through Bootcamp.
