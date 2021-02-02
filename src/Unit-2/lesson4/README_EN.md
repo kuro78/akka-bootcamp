@@ -1,17 +1,12 @@
 # Lesson 2.4: Switching Actor Behavior at Run-time with `BecomeStacked` and `UnbecomeStacked`
-# Akka 중급 2-4 : `BecomeStacked` 와 `UnbecomeStacked`를 사용하여 런타임에 액터 동작 전환
 
 In this lesson we're going to learn about one of the really cool things actors can do: [change their behavior at run-time](https://getakka.net/articles/actors/receive-actor-api.html#becomeunbecome "Akka.NET - Actor behavior hotswap")!
-이번 레슨에서 액터가 할 수 있는 정말 멋진 일 중 하나에 대해 배울 것입니다: [런타임에 동작 변경하기](https://getakka.net/articles/actors/receive-actor-api.html#becomeunbecome "Akka.NET - Actor behavior hotswap")!
 
 ## Key Concepts / Background
 Let's start with a real-world scenario in which you'd want the ability to change an actor's behavior.
-액터의 행동을 바꿀 시 있는 능력이 필요한 실제 시나리오부터 시작해 볼까요?
 
 ### Real-World Scenario: Authentication
-### 실제 시나리오: 인증
 Imagine you're building a simple chat system using Akka.NET actors, and here's what your `UserActor` looks like - this is the actor that is responsible for all communication to and from a specific human user.
-Akka.Net 액터를 사용해 간단한 채팅 시스템을 구축한다고 가정해 보겠습니다. 특정 사용자와의 모든 통신을 담당하는 액터가 당신이 원하는 `UserActor`의 모습입니다.
 
 ```csharp
 public class UserActor : ReceiveActor {
@@ -34,28 +29,19 @@ public class UserActor : ReceiveActor {
 ```
 
 So we have basic chat working - yay! But&hellip; right now there's nothing to guarantee that this user is who they say they are. This system needs some authentication.
-자, 기본적인 채팅 액터를 만들었습니다. 예! 하지만 지금 당장은 사용자 자신이 말하는 사람인지 보장 할 수 없습니다. 시스템에 뭔가 인증수단이 필요합니다.
 
 How could we rewrite this actor to handle these same types of chat messages differently when:
-아래와 같이 같은 타입의 채팅 메시지를 다르게 처리할 수 있도록 액터를 다시 작성할 수 있을까요?
 
 * The user is **authenticating**
-* **인증 중인** 사용자
 * The user is **authenticated**, or
-* **인증된** 사용자, 또는
 * The user **couldn't authenticate**?
-* **인증할 수 없는** 사용자?
 
 Simple: we can use switchable actor behaviors to do this!
-간단합니다:  액터의 동작 전환(switchable behavior)을 이용해 할 수 있습니다.
 
 ### What is switchable behavior?
-### 동작 전환(siwtchable behavior)이 무엇인가요?
 One of the core attributes of an actor in the [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is that an actor can change its behavior between messages that it processes.
-[Actor Model](https://en.wikipedia.org/wiki/Actor_model)에서 액터의 핵심 속성중 하나는 액터가 처리하는 메시지간에 행동을 변경할 수 있다는 것입니다.
 
 This capability allows you to do all sorts of cool stuff, like build [Finite State Machines](http://en.wikipedia.org/wiki/Finite-state_machine) or change how your actors handle messages based on other messages they've received.
-이 기능을 사용하면, [유한 상태 머신](http://en.wikipedia.org/wiki/Finite-state_machine) 빌드나 액터가 수신한 메시지에 따라 메시지를 처리하는 방식을 변경하는 것과 같은 모든 종류의 작업을 수행할 수 있습니다.
 
 Switchable behavior is one of the most powerful and fundamental capabilities of any true actor system. It's one of the key features enabling actor reusability, and helping you to do a massive amount of work with a very small code footprint.
 
@@ -436,3 +422,10 @@ What happens if I toggle a chart on or off when the `ChartingActor` is in a paus
 *This is exactly the problem we're going to solve in the next lesson*, using a message `Stash` to defer processing of messages until we're ready.
 
 **Let's move onto [Lesson 5 - Using `Stash` to Defer Processing of Messages](../lesson5/README.md).**
+
+## Any questions?
+
+Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
+
+### Problems with the code?
+If there is a problem with the code running, or something else that needs to be fixed in this lesson, please [create an issue](https://github.com/petabridge/akka-bootcamp/issues) and we'll get right on it. This will benefit everyone going through Bootcamp.
