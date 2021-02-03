@@ -1,6 +1,6 @@
 # Akka 중급 2-2 : 더 나은 메시지 처리를 위해 `ReceiveActor` 사용
 
-첫 번째 단원에서는 `UntypedActor`(["Akka.NET - UntypedActor"](http://api.getakka.net/docs/stable/html/6300028C.htm))를 사용하여 첫 번째 액터를 빌드하고 몇 가지 간단한 메시지 유형을 처리하는 방법을 배웠습니다.
+Unit 1에서는 `UntypedActor`(["Akka.NET - UntypedActor"](http://api.getakka.net/docs/stable/html/6300028C.htm))를 사용하여 첫 번째 액터를 빌드하고 몇 가지 간단한 메시지 유형을 처리하는 방법을 배웠습니다.
 
 이번 레슨에서는 `ReceiveActor`(["Akka.NET - ReceiveActor"](http://api.getakka.net/docs/stable/html/B124B2AF.htm))를 사용하여 Akka.NET에서 보다 정교한 유형의 패턴 일치 및 메시지 처리를 쉽게하는 방법을 보여줄 것입니다.
 
@@ -190,13 +190,13 @@ public class StringActor : ReceiveActor
 ## 실습
 이번 실습에서는 차트에 여러 데이터 시리즈를 추가하는 기능을 추가하고, `ChartingActor`를 수정하여 이를 수행하는 명령을 처리 할 것입니다.
 
-### 1단계 - UI에 "시리즈 추가" 버튼 추가
+### 1단계: UI에 "Add Series" 버튼 추가
 
-가장 먼저 할 일은 "시리즈 추가"라는 새 버튼을 양식에 추가하는 것입니다. `Main.cs`의 **[Design]**보기로 이동하여 도구 상자에서 `Button`을 UI로 드래그합니다. 여기에 버튼을 놓았습니다:
+가장 먼저 할 일은 "Add Series"라는 새 버튼을 Form에 추가하는 것입니다. `Main.cs`의 **[Design]** 뷰로 이동하여 도구 상자에서 `Button`을 UI로 드래그합니다. 여기에 버튼을 놓았습니다:
 
 ![Adding a 'Add Series' button in Design view in Visual Studio](images/button.gif)
 
-**[Design]**보기에서 버튼을 두 번 클릭하면 Visual Studio가 자동으로 `Main.cs` 내에 클릭 핸들러를 추가합니다. 생성 된 핸들러는 다음과 같아야합니다:
+**[Design]** 버에서 버튼을 두 번 클릭하면 Visual Studio가 자동으로 `Main.cs` 내에 클릭 핸들러를 추가합니다. 생성된 핸들러는 다음과 같아야합니다:
 
 ```csharp
 // automatically added inside Main.cs if you double click on button in designer
@@ -208,9 +208,9 @@ private void button1_Click(object sender, EventArgs e)
 
 **지금은 비워 둡시다**. 조만간 이 버튼을 `ChartingActor`에 연결하겠습니다.
 
-### 2단계 - `ChartingActor`에 `AddSeries` 메시지 타입 추가
+### 2단계: `ChartingActor`에 `AddSeries` 메시지 타입 추가
 
-`ChartingActor`가 관리하는 `Chart`에 추가 `Series`를 넣는 새 메시지 클래스를 정의해 보겠습니다. 새로운 `Series`를 추가할 것임을 나타 내기 위해 `AddSeries` 메시지 타입을 생성합니다.
+`ChartingActor`가 관리하는 `Chart`에 추가 `Series`를 넣는 새 메시지 클래스를 정의해 보겠습니다. 새로운 `Series`를 추가할 것임을 나타내기 위해 `AddSeries` 메시지 타입을 생성합니다.
 
 `Messages` 영역 내의 `ChartingActor.cs`에 다음 코드를 추가합니다:
 
@@ -231,7 +231,7 @@ public class AddSeries
 }
 ```
 
-### 3단계 - `ChartingActor`는 `ReceiveActor`를 상속 받기
+### 3단계: `ChartingActor`는 `ReceiveActor`를 상속 받기
 이제 중요한 부분은 - `ChartingActor`를 `UntypedActor`에서 `ReceiveActor`로 변경하는 것입니다.
 
 이제 `ChartingActor`의 선언을 변경해 보겠습니다.
@@ -253,7 +253,7 @@ public class ChartingActor : ReceiveActor
 #### `ChartingActor`에서 `OnReceive` 메소드를 제거
 **`ChartingActor`에서 `OnReceive` 메소드를 삭제하는 것을 잊지 마십시오**. 이제 `ChartingActor`가 `ReceiveActor`이므로 `OnReceive()` 메소드가 필요하지 않습니다.
 
-### 4단계 - `ChartingActor`에 대한 `Receive<T>` 핸들러 정의
+### 4단계: `ChartingActor`에 대한 `Receive<T>` 핸들러 정의
 
 지금 `ChartingActor`는 전송된 메시지를 처리할 수 없습니다. 따라서 수락하려는 메시지 유형에 대한 일부 `Receive<T>` 핸들러를 정의하여 문제를 해결하겠습니다.
 
@@ -294,7 +294,7 @@ public ChartingActor(Chart chart, Dictionary<string, Series> seriesIndex)
 
 이를 통해 `ChartingActor`는 이제 두 가지 유형의 메시지를 쉽게 수신하고 처리할 수 있습니다.
 
-### 5단계 - "시리즈 추가"버튼에 대한 버튼 클릭 핸들러를 사용하여 `ChartingActor`에 `AddSeries` 메시지 보내기
+### 5단계: "Add Series"버튼에 대한 버튼 클릭 핸들러를 사용하여 `ChartingActor`에 `AddSeries` 메시지 보내기
 
 1단계에서 버튼에 추가한 클릭 핸들러로 돌아가 보겠습니다.
 

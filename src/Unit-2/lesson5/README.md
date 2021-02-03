@@ -7,7 +7,7 @@
 
 버그는 `ChartingActor`가 동작을 `Paused`로 변경하면 더 이상 특정 성능 카운터에 대해 토글 버튼을 누를 때마다 생성되는 `AddSeries` 및 `RemoveSeries` 메시지를 처리하지 않는다는 것입니다. 
 
-현재 폼에서는, 버튼의 시각적 상태가 라이브 차트와 완전히 동기화되지 않는데 많은 시간이 걸리지 않습니다. 그래프가 일시 중지되고 즉시 동기화되지 않을 때 토글 버튼을 누르기 만하면됩니다.
+현재 Form에서는, 버튼의 시각적 상태가 라이브 차트와 완전히 동기화되지 않는데 많은 시간이 걸리지 않습니다. 그래프가 일시 중지되고 즉시 동기화되지 않을 때 토글 버튼을 누르기 만하면됩니다.
 
 어떻게 이 문제를 고칠까요?
 
@@ -19,7 +19,7 @@
 액터에 대한 전환 가능한 동작의 부작용 중 하나는 일부 동작이 특정 유형의 메시지를 처리 할 수 없다는 것입니다. 예를 들어 [레슨 4](../lesson4/README.md)에서 동작 전환에 사용한 인증 예제를 살펴 보겠습니다. 
 
 ### `Stash`가 뭔가요?
-`Stash`는 나중에 처리하기 위해 메시지를 연기하기하는 액터에 구현된 스택형(stack-like) 데이터 구조입니다. 
+`Stash`는 나중에 처리하기 위해 메시지를 연기하는 액터에 구현된 스택형(stack-like) 데이터 구조입니다. 
 
 ### 액터에 `Stash`를 추가하는 방법
 액터에 `Stash`를 추가하려면 다음과 같이 [`IWithBoundedStash`](http://api.getakka.net/docs/stable/html/683AD26A.htm "Akka.NET Stable API Docs - IWithBoundedStash interface") 또는 [`IWithUnboundedStash`](http://api.getakka.net/docs/stable/html/BB4565A9.htm "Akka.NET Stable API Docs - IWithUnboundedStash interface")를 인터페이스로 장식하기 만하면 됩니다:
@@ -40,7 +40,7 @@ public class UserActor : ReceiveActor, IWithUnboundedStash {
 99%의 시간 동안 `UnboundedStash`를 사용하기를 원할 것입니다 - `Stash`가 무제한의 메시지를 수락 할 수 있도록합니다. `BoundedStash`는 주어진 시간에 보관할 수있는 최대 메시지 수를 설정하려는 경우에만 사용해야합니다. `Stash`가 `BoundedStash` 제한을 초과 할 때마다 액터가 충돌합니다. 
 
 #### `Stash`를 초기화해야 하나요?
-잠시만 기다려주세요. `UserActor`에 공개 getter 및 setter를 포함하는 새로운 `Stash`속성이 있습니다. 이것이 바로 `Stash`를 초기화해야 한다는 의미인가요? **아니요!** 
+잠시만 기다려주세요. `UserActor`에 공개 getter 와 setter를 포함하는 새로운 `Stash`속성이 있습니다. 이것이 바로 `Stash`를 초기화해야 한다는 의미인가요? **아니요!** 
 
 `Stash` 속성은 액터가 로컬에서 생성 될 때마다 사용되는 "Actor Construction Pipeline"이라는 Akka.NET 기능에 의해 자동으로 채워집니다(자세한 내용은 강의의 범위를 벗어납니다). 
 
@@ -102,7 +102,7 @@ Note: `Stash()`를 호출하면 현재 메시지가 자동으로 보관되므로
 *왜?* 이런 일이 일어날 수 있는지에 대해 더 많은 것이 있지만, 이 강의의 범위를 훨씬 벗어납니다. 
 
 ### `Stash`에 보관한 메시지는 데이터를 잃어 버리나요? 
-절대로 그렇지 않아요. 메시지를 `Stash`에 보관할 때 메시지 와 메시지에 대한 모든 메타데이터(`Sender` 등)가 포함된 'Envelope' 메시지를 기술적으로 저장해야 합니다.
+절대로 그렇지 않아요. 메시지를 `Stash`에 보관할 때 메시지 와 메시지에 대한 모든 메타데이터(`Sender` 등)가 포함된 `Envelope` 메시지를 기술적으로 저장해야 합니다.
 
 ### 다시 시작하는 동안 액터의 `Stash`에있는 메시지는 어떻게 되나요? 
 훌륭한 질문입니다! `Stash`는 액터의 짧은 상태 중 일부입니다. 다시 시작하는 경우 저장소가 파괴되고 가비지가 수집됩니다. 이것은  재시작 중에도 메시지가 지속되는 액터의 메일박스와 반대입니다.
@@ -183,7 +183,7 @@ public class UserActor : ReceiveActor {
 }
 ```
 
-레슨 4에서 채팅방 `UserActor` 예제를 처음 보았을 때, 처음에 인증을 활성화하기 위해 동작을 전환하는 데 중점을 두었습니다. 그러나 우리는 `UserActor`의 주요 문제를 무시했습니다. `Authenticating` 단계에서 시도한 `OutgoingMessage` 와 `IncomingMessage` 인스턴스를 모두 버리기만 하면 됩니다. 
+레슨 4에서 채팅방 `UserActor` 예제를 처음 보았을 때, 처음에 인증을 활성화하기 위해 동작을 전환하는데 중점을 두었습니다. 그러나 우리는 `UserActor`의 주요 문제를 무시했습니다. `Authenticating` 단계에서 시도한 `OutgoingMessage` 와 `IncomingMessage` 인스턴스를 모두 버리기만 하면 됩니다. 
 
 메시지 처리를 지연시키는 방법을 알지 못했기 때문에 아무런 이유 없이 사용자에게 메시지가 손실되고 있습니다. **윽!** 고치죠.
 

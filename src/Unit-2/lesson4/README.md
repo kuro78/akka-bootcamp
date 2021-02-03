@@ -3,7 +3,7 @@
 이번 레슨에서 액터가 할 수 있는 정말 멋진 일 중 하나에 대해 배울 것입니다: [런타임에 동작 변경하기](https://getakka.net/articles/actors/receive-actor-api.html#becomeunbecome "Akka.NET - Actor behavior hotswap")!
 
 ## Key Concepts / Background
-액터의 행동을 바꿀 시 있는 능력이 필요한 실제 시나리오부터 시작해 볼까요?
+액터의 행동을 바꿀 수 있는 능력이 필요한 실제 시나리오부터 시작해 볼까요?
 
 ### 실제 시나리오: 인증
 Akka.Net 액터를 사용해 간단한 채팅 시스템을 구축한다고 가정해 보겠습니다. 특정 사용자와의 모든 통신을 담당하는 액터가 당신이 원하는 `UserActor`의 모습입니다.
@@ -41,7 +41,7 @@ public class UserActor : ReceiveActor {
 ### 전환 가능 동작(siwtchable behavior)이 무엇인가요?
 [Actor Model](https://en.wikipedia.org/wiki/Actor_model)에서 액터의 핵심 속성중 하나는 액터가 처리하는 메시지간에 행동을 변경할 수 있다는 것입니다.
 
-이 기능을 사용하면, [유한 상태 머신](http://en.wikipedia.org/wiki/Finite-state_machine) 빌드나 액터가 수신한 메시지에 따라 메시지를 처리하는 방식을 변경하는 것과 같은 모든 종류의 작업을 수행할 수 있습니다.
+이 기능을 사용하면, [유한 상태 머신(Finite-state machine)](http://en.wikipedia.org/wiki/Finite-state_machine) 빌드나 액터가 수신한 메시지에 따라 메시지를 처리하는 방식을 변경하는 것과 같은 모든 종류의 작업을 수행할 수 있습니다.
 
 전환 가능 동작은 진정한 액터 시스템의 가장 강력하고 기본적인 기능 중 하나입니다. 액터의 재사용을 가능하게하는 주요 기능 중 하나이며, 매우 작은 코드 풋프린트로 엄청난 양의 작업을 수행할 수 있도록 도와줍니다. 
 
@@ -93,7 +93,7 @@ Akka.NET 액터는 "동작 스택(behavior stack)"이라는 개념을 가지고 
 다음은 전환 가능 동작에 대한 몇 가지 일반적인 질문입니다:
 
 #### 새로운 동작은 언제 적용되나요? 
-[Akka.NET 액터는 한 번에 하나의 메시지 만 처리](http://petabridge.com/blog/akkadotnet-async-actors-using-pipeto/)하므로 액터 메시지 처리 동작을 안전하게 전환 할 수 있습니다. 새 메시지 처리 동작은 다음 메시지가 도착할 때까지 적용되지 않습니다. 
+[Akka.NET 액터는 한 번에 하나의 메시지만 처리](http://petabridge.com/blog/akkadotnet-async-actors-using-pipeto/)하므로 액터 메시지 처리 동작을 안전하게 전환할 수 있습니다. 새 메시지 처리 동작은 다음 메시지가 도착할 때까지 적용되지 않습니다. 
 
 #### `Become`이 동작 스택을 날려 버리는 것이 나쁘지 않나요? 
 아니요, 그렇진 않아요. 지금까지 가장 일반적으로 사용되는 방식입니다. 한 동작에서 다른 동작으로 명시적으로 전환하는 것이 동작 전환에 사용되는 가장 일반적인 방식입니다. 간단하고 명시적인 스위치를 사용하면 코드를 훨씬 쉽게 읽고 추론할 수 있습니다.
@@ -102,7 +102,7 @@ Akka.NET 액터는 "동작 스택(behavior stack)"이라는 개념을 가지고 
 
 이 레슨에서는 `BecomeStacked`와 `UnbecomeStacked`를 사용하여 시연합니다. 보통 우리는 그냥 `Become`을 사용합니다. 
 
-#### 동작 스택의 깂이는 얼마나 되나요? 
+#### 동작 스택의 깊이는 얼마나 되나요? 
 스택은 *정말* 깊을 수 있지만, 무제한은 아닙니다. 
 
 또한 액터가 다시 시작될 때마다 동작 스택이 지워지고 사용자가 코드화한 초기 동작부터 액터가 시작됩니다.
@@ -193,9 +193,9 @@ public class UserActor : ReceiveActor {
 
 생성자에서 `Authenticating()`을 호출했으므로, 액터는 `Authenticating()`상태에서 시작했습니다. 
 
-*즉, `Authenticating()`메서드에 정의된 `Receive <T>`핸들러만 메시지 처리에 사용됩니다. (초기)* 
+*즉, `Authenticating()`메서드에 정의된 `Receive<T>`핸들러만 메시지 처리에 사용됩니다. (초기)* 
 
-그러나, `AuthenticationSuccess` 또는 `AuthenticationFailure` 유형의 메시지를 수신하면 `Become` 메소드 ([docs](https://getakka.net/articles/actors/receive-actor-api.html#becomeunbecome "Akka.NET - ReceiveActor Become"))를 사용하여 동작을 각각 `Authenticated` 또는 `Unauthenticated`로 전환합니다. 
+그러나, `AuthenticationSuccess` 또는 `AuthenticationFailure` 유형의 메시지를 수신하면 `Become` 메소드([docs](https://getakka.net/articles/actors/receive-actor-api.html#becomeunbecome "Akka.NET - ReceiveActor Become"))를 사용하여 동작을 각각 `Authenticated` 또는 `Unauthenticated`로 전환합니다. 
 
 ### `UntypedActor`에서 동작을 전환 할 수 있나요? 
 예, 하지만 `UntypedActor` 내부의 구문은 약간 다릅니다. `UntypedActor`에서 동작을 전환하려면 직접 호출하는 대신 `ActorContext`를 통해 `BecomeStacked` 와 `UnbecomeStacked`에 액세스해야 합니다. 
@@ -206,7 +206,7 @@ public class UserActor : ReceiveActor {
 * `Context.BecomeStacked(Receive rec)` - 스택에 새로운 동작을 푸시하거나 
 * `Context.UnbecomeStacked()` - 현재 동작을 팝하고 이전 동작으로 전환합니다. (해당되는 경우)
 
-`Context.Become`의 첫 번째 인수는 `Receive` 델리게이트로, 다음 서명을 가진 모든 메서드입니다:
+`Context.Become`의 첫 번째 인수는 `Receive` 대리자로, 다음 서명을 가진 모든 메서드입니다:
 
 ```csharp
 void MethodName(object someParameterName);

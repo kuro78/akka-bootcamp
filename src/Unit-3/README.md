@@ -36,7 +36,7 @@ Octokit에 대해 궁금한 점이 있거나 더 자세히 알고 싶다면 [Git
 
 ## Table of Contents
 
-1. **[Lesson 1: `Group`라우터를 사용해 액터간에 작업 분할](lesson1/README.md)**
+1. **[Lesson 1: `Group` 라우터를 사용해 액터간 작업 분할](lesson1/README.md)**
 2. **[Lesson 2: `Pool` 라우터를 사용해 자동으로 액터 풀 생성 및 관리](lesson2/README.md)** 
 3. **[Lesson 3: HOCON을 사용해 라우터를 구성하는 방법](lesson3/README.md)**
 4. **[Lesson 4: `PipeTo`를 사용해 액터 내부에서 비동기식으로 작업을 수행하는 방법](lesson4/README.md)**

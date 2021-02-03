@@ -1,7 +1,7 @@
 # Akka 중급 2-3: `Scheduler`를 사용한 지연 메시지 보내기
 3번째 레슨에 오신 것을 환영합니다!
 
-얼마나 진행했나요? 이 시점에서 우리는 시스템 메트릭을 그래프로 표시하는 `ChartingActor`와 함께 기본 차트를 설정했습니다. 이 시점에 `ChartingActor`는 실제로 아무것도 그래프로 표시하지 않습니다! 그것을 바꿀 때입니다.
+얼마나 진행했나요? 시스템 메트릭을 그래프로 표시하는 `ChartingActor`와 함께 기본 차트를 설정했습니다. 이 시점에 `ChartingActor`는 실제로 아무것도 그래프로 표시하지 않습니다! 그것을 바꿀 때입니다.
 
 이 레슨에서는 시스템의 다양한 구성 요소를 연결하여 리소스 모니터 애플리케이션이 실제로 시스템 리소스 소비를 차트로 표시하도록 할 것입니다! **이번 레슨이 Unit 2의 핵심입니다. 커피를 마시며 편안하게 즐기십시오!** 
 
@@ -11,7 +11,7 @@ Akka.NET이 제공하는 가장 강력한 기능중 하나는 정기적으로 �
 
 이 레슨에서는 두 가지 강력한 Akka.NET 개념을 배우게됩니다:
 
-1. `스케줄러(Scheduler)`사용 방법, 과
+1. `스케줄러(Scheduler)`사용 방법과
 2. 액터를 이용한 [게시-구독 패턴](http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) 구현 방법. 이것은 반응 시스템을 만드는 강력한 기술입니다. 
 
 ## Key Concepts / Background
@@ -19,10 +19,10 @@ Akka.NET이 제공하는 가장 강력한 기능중 하나는 정기적으로 �
 
 아마도 당신은 액터가 주기적으로 정보를 가져 오거나, 시스템 내의 다른 액터에 대한 상태를 가끔 핑(ping)하기를 원할 수 있습니다. 
 
-Akka.NET은 이러한 작업을 수행하기위한 메커니즘을 제공합니다. 새로운 친한 친구를 만나보세요: `스케줄러(Scheduler)` 입니다. 
+Akka.NET은 이러한 작업을 수행하기 위한 메커니즘을 제공합니다. 새로운 친한 친구를 만나보세요: `스케줄러(Scheduler)` 입니다. 
 
 ### `스케줄러(Scheduler)`란?
-`ActorSystem.Scheduler`([문서](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Docs - IScheduler interface"))는 모든 ActorSystem 내의 싱글톤으로, 앞으로 액터에게 메시지를 보낼 수 있도록 스케줄을 설정할 수 있습니다. `스케줄러(Scheduler)`는 일회성 메시지와 반복성 메시지를 모두 보낼 수 있습니다.
+`ActorSystem.Scheduler`([docs](http://api.getakka.net/docs/stable/html/FB15E2E6.htm "Akka.NET Stable API Docs - IScheduler interface"))는 모든 ActorSystem 내의 싱글톤으로, 앞으로 액터에게 메시지를 보낼 수 있도록 스케줄을 설정할 수 있습니다. `스케줄러(Scheduler)`는 일회성 메시지와 반복성 메시지를 모두 보낼 수 있습니다.
 
 ### `Scheduler`는 어떻게 사용하나요?
 앞서 언급했듯이, 액터에게 일회성 또는 반복 메시지를 예약 할 수 있습니다. 
@@ -45,7 +45,7 @@ Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromMinutes(30),
 								             someMessage, ActorRefs.Nobody);
 ```
 
-#### `ScheduleTellOnce ()`를 사용하여 일회성 메시지 예약 
+#### `ScheduleTellOnce()`를 사용하여 일회성 메시지 예약 
 액터 중 하나에서 30 분 후에 RSS 피드에서 최신 콘텐츠를 가져 오도록하고 싶다고 가정해 보겠습니다. 이를 위해 [`IScheduler.ScheduleTellOnce()`](http://api.getakka.net/docs/stable/html/190E4EB.htm "Akka.NET Stable API Docs - IScheduler.ScheduleTellOnce method")를 사용할 수 있습니다:
 
 ```csharp
@@ -78,9 +78,9 @@ system
              someActor, someMessage, ActorRefs.Nobody);
 ```
 
-그게 다입니다!
+이게 답니다!
 
-### 예약 된 메시지를 취소하려면 어떻게 하나요? 
+### 예약된 메시지를 취소하려면 어떻게 하나요? 
 예약되거나 반복되는 메시지를 취소해야하는 경우 어떻게됩니까? [`ICancelable`](http://api.getakka.net/docs/stable/html/3FA8058E.htm "Akka.NET Stable API Docs - ICancelable interface")을 사용하여 생성할 수있는 [`Cancelable`](http://api.getakka.net/docs/stable/html/8869EC52.htm) 인스턴스를 사용합니다. 
 
 먼저 메시지를 취소 할 수 있도록 예약해야합니다. 메시지가 취소 가능하면, `ICancelable`에 대한 핸들에서 `Cancel()`을 반드시 호출해야 합니다. 그렇지 않으면 메세지 취소가 전달되지 않습니다. 예를 들어: 
@@ -185,11 +185,11 @@ Pub/sub는 Akka.NET에서 구현하기에 매우 간단한 것으로, 이에 잘
 이제 'Scheduler'가 작동하는 방식에 익숙해 졌으므로, 이를 사용하여 차트 UI를 반응형으로 만들 수 있습니다. 
 
 ## 실습
-**주의:** 이번 실습에서 Unit 2의 모든 작업 중 90 %가 이루어집니다. `PerformanceCounter`데이터를 정기적으로 그래프로 표시하기 위해 `ChartingActor`와 pub/sub 관계 설정을 담당하는 몇 명의 새로운 액터를 추가 할 것입니다.
+**주의:** 이번 실습에서 Unit 2의 모든 작업 중 90%가 이루어집니다. `PerformanceCounter` 데이터를 정기적으로 그래프로 표시하기 위해 `ChartingActor`와 pub/sub 관계 설정을 담당하는 몇 명의 새로운 액터를 추가 할 것입니다.
 
-### 1단계: "시리즈 추가" 버튼을 삭제하고 레슨 2에서 만든 핸들러를 클릭하세요. 
+### 1단계: "Add Series" 버튼을 삭제하고 레슨 2에서 만든 핸들러를 클릭하세요. 
 
-그것이 필요하지 않을 것입니다.  `Main.cs`의 **[Design]** 보기에서 **"시리즈 추가" 버튼을 삭제**하고, 클릭 핸들러를 제거합니다:
+그것이 필요하지 않을 것입니다. `Main.cs`의 **[Design]** 뷰에서 **"Add Series" 버튼을 삭제**하고, 클릭 핸들러를 제거합니다:
 
 ```csharp
 // Main.cs - Main
@@ -210,11 +210,11 @@ private void button1_Click(object sender, EventArgs e)
 * **MEMORY (OFF)**
 * **DISK (OFF)**
 
-Visual Studio의 `Main.cs`에 대한 **[디자인]**뷰는 다음과 같아야합니다:
+Visual Studio의 `Main.cs`에 대한 **[디자인]** 뷰는 다음과 같아야합니다:
 
 ![Add 3 buttons for tracking different performance counter metrics](images/add-3-buttons.png)
 
-나중에 참조해야하므로 각 버튼에 설명이 포함 된 이름을 지정했는지 확인하세요. Visual Studio의 **속성** 창을 사용하여 각각에 대한 설명이 포함 된 이름을 설정할 수 있습니다:
+나중에 참조해야하므로 각 버튼에 설명이 포함 된 이름을 지정했는지 확인하세요. Visual Studio의 **속성** 창을 사용하여 각각에 대한 설명이 포함된 이름을 설정할 수 있습니다:
 
 ![Set a descriptive name for each button](images/button-properties-window.png)
 
@@ -224,7 +224,7 @@ Visual Studio의 `Main.cs`에 대한 **[디자인]**뷰는 다음과 같아야�
 * **MEMORY (OFF)** - `btnMemory`
 * **DISK (OFF)** - `btnDisk`
 
-버튼의 이름을 변경한 후 **[디자인]**뷰에서 *버튼을 두 번 클릭하여 각 버튼에 대한 클릭 핸들러를 추가합니다.* 
+버튼의 이름을 변경한 후 **[디자인]** 뷰에서 *버튼을 두 번 클릭하여 각 버튼에 대한 클릭 핸들러를 추가합니다.* 
 
 ```csharp
 // Main.cs - Main
@@ -247,7 +247,7 @@ private void btnDisk_Click(object sender, EventArgs e)
 이 핸들러는 나중에 채울 것입니다. 
 
 ### 3단계: 새 메시지 유형 추가
-잠시 후에 프로젝트에 몇 가지 새로운 액터를 추가할 것입니다. 그 전에 프로젝트의 `/Actors` 폴더에 새 파일을 만들고 몇 가지 새로운 메시지 유형을 정의해 보겠습니다:
+잠시 후, 프로젝트에 새로운 액터들을 추가할 것입니다. 그 전에 프로젝트의 `/Actors` 폴더에 새 파일을 만들고, 몇 가지 새로운 메시지 유형을 정의해 보겠습니다:
 
 ```csharp
 // Actors/ChartingMessages.cs
@@ -433,18 +433,18 @@ namespace ChartApp.Actors
 
 ```
 
-  다음 단계로 넘어가기 전에, 방금한 일에 대해 이야기해 봅시다 ...* 
+*다음 단계로 넘어가기 전에, 방금한 일에 대해 이야기해 봅시다...*
 
 #### 신뢰성을 위한 함수형 프로그래밍 
 `PerformanceCounterActor`의 생성자에서 `PerformanceCounter`가 아닌 `Func<PerformanceCounter>`를 사용하는 방법을 알고 계셨습니까? 그렇지 않은 경우 돌아가서 지금보십시오. 무엇을 제공합니까? 
 
-이것은 함수형 프로그래밍에서 차용한 기술입니다. 액터의 생성자에 `IDisposable` 객체를 주입해야 할 때마다 사용합니다. 왜냐? 
+이것은 함수형 프로그래밍에서 차용한 기술입니다. 액터의 생성자에 `IDisposable` 객체를 주입해야 할 때마다 사용합니다. 왜냐고요? 
 
-글쎄요, 우리는 `IDisposable` 객체를 매개 변수로 취하는 액터를 가지고 있습니다. 그래서 우리는 이 객체가 실제로 어떤 시점에서 `Disposed`가 되어 더이상 사용할 수 없게 될 것이라고 가정 할 것입니다. 
+글쎄요, `IDisposable` 객체를 매개 변수로 취하는 액터를 가지고 있습니다. 이 객체가 실제로 어떤 시점에서 `Disposed`가 되어 더이상 사용할 수 없게 될 것이라고 가정 할 것입니다. 
 
 `PerformanceCounterActor`를 다시 시작해야할 필요가 있다면 어떻게 합니까? 
 
-**`PerformanceCounterActor`가 재시작하려 할 때마다 참조 유형을 포함하는 원래 생성자 인수를 재사용합니다**. 이미 `Disposed`된 `PerfomaceCounter`에 대해 같은 참조를 다시 사용하려면 부모 액터가 그 액터를 완전히 kill하기로 결정할 때까지 반복적으로 오류(crash)가 납니다.
+**`PerformanceCounterActor`가 재시작하려 할 때마다 참조 유형을 포함하는 원래 생성자 인수를 재사용합니다**. 이미 `Disposed`된 `PerfomaceCounter`에 대해 같은 참조를 다시 사용하려면 부모 액터가 그 액터를 완전히 kill 하기로 결정할 때까지 반복적으로 오류(crash)가 납니다.
 
 더 좋은 방법은 `PerformanceCounterActor`가 `PerformanceCounter`의 새 인스턴스를 가져 오는데 사용할 수있는 팩토리 함수를 전달하는 것입니다. 이것이 우리가 생성자에 `Func<PerformanceCounter>`를 사용하는 이유입니다. 액터의 `PreStart()` 라이프 사이클 메서드 안에서 호출됩니다. 
 
@@ -688,10 +688,10 @@ namespace ChartApp.Actors
     }
 }
 ```
-좋아요, 거의 다 왔습니다. 단 하나의 액터 만 남았습니다! 
+좋아요, 거의 다 왔습니다. 단 하나의 액터만 남았습니다! 
 
 ### 6단계: `ButtonToggleActor` 만들기
-2단계에서 만든 버튼들을 관리할 액터을 추가하지 않고 그냥 발사하게 놔둘 거라고는 생각지 않으셨죠? ;)
+2단계에서 만든 버튼들을 관리할 액터을 추가하지 않고 그냥 시작하게 놔둘 거라고는 생각지 않으셨죠? ;)
 
 이 단계에서는 `ChartingActor`처럼 UI 스레드에서 실행될 새로운 유형의 액터를 추가할 것입니다. 
 
@@ -1009,7 +1009,7 @@ private void btnDisk_Click(object sender, EventArgs e)
 ```
 
 ### 마치고,
-`SystemCharting.sln`을 빌드하고 실행하면 다음이 표시됩니다:
+`ChartApp.csproj`를 빌드하고 실행하면 다음이 표시됩니다:
 
 ![Successful Lesson 3 Output (animated gif)](images/dothis-successful-run3.gif)
 > NOTE: eBook / .ePub를 사용하여 따라하는 경우 애니메이션이 표시되지 않습니다. [여기를 눌러 확인하세요.](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson3/images/dothis-successful-run3.gif)
