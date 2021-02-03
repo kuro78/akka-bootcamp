@@ -186,4 +186,4 @@ protected override void PostStop()
 작성한 코드와 [Completed](Completed/)의 코드를 비교하며 샘플에 어떤 것이 추가 및 수정되었는지 확인 해봅시다.
 
 ## 수고하셨습니다!
-**더 배우고 싶은가요? [지금 Unit 2를 시작해 보세요.](../../Unit-2/README.md "Akka.NET Bootcamp Unit 2").**
+**더 배우고 싶은가요? [지금 Unit 2를 시작해 보세요](../../Unit-2/README.md "Akka.NET Bootcamp Unit 2").**
