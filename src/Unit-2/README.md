@@ -12,7 +12,7 @@ Unit 2에서는 Windows Forms, .NET에 내장 된 데이터 시각화 도구 및
 
 ![Akka.NET Bootcamp Unit 2 Output](lesson5/images/syncharting-complete-output.gif)
 
-> NOTE: eBook / .ePub를 사용하여 따라하는 경우 애니메이션이 표시되지 않습니다. [여기를 눌러 확인하세요.](https://github.com/petabridge/akka-bootcamp/blob/master/src/Unit-2/lesson5/images/syncharting-complete-output.gif).
+> NOTE: eBook / .ePub를 사용하여 따라하는 경우 애니메이션이 표시되지 않습니다. [여기를 눌러 확인하세요](https://github.com/petabridge/akka-bootcamp/blob/master/src/Unit-2/lesson5/images/syncharting-complete-output.gif).
 
 **액터를 사용하여 이 모든 것을 구축 할 것이며**, 작업이 끝나면 코드 공간이 얼마나 작은 지 놀랄 것입니다.
 
